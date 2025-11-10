@@ -5,13 +5,14 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="#F9F9F9">
 
     <!-- HEADER -->
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="0dp"
         android:layout_height="56dp"
+        android:background="#FFFFFF"
         android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
@@ -104,57 +105,60 @@
         app:layout_constraintStart_toStartOf="parent"/>
 
     <!-- CARD Evento -->
+
+    <!-- NAVBAR (sempre no fundo da tela) -->
     <LinearLayout
         android:id="@+id/card_evento"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="12dp"
-        android:orientation="vertical"
-        android:padding="12dp"
-        android:gravity="center_vertical"
         android:background="@drawable/bg_card_white"
-        app:layout_constraintTop_toBottomOf="@id/tituloRecentes"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+
+        android:padding="12dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/tituloRecentes"
+        app:layout_constraintVertical_bias="0.03">
 
         <!-- Linha principal: ícone + título + tag -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/event_icon"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@android:drawable/ic_menu_info_details"
-                app:tint="#5DB1F0"
                 android:layout_marginEnd="12dp"
-                android:contentDescription="ícone evento"/>
+                android:contentDescription="ícone evento"
+                android:src="@android:drawable/ic_menu_info_details"
+                app:tint="#5DB1F0" />
 
             <TextView
                 android:id="@+id/event_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Palestra sobre IA"
+                android:textColor="@color/black"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"/>
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/event_tag"
                 android:layout_width="72dp"
                 android:layout_height="wrap_content"
-                android:text="Central"
-                android:gravity="center"
+                android:layout_marginStart="8dp"
                 android:background="@color/tag_bg"
-                android:textColor="@color/tag_text"
-                android:textSize="12sp"
+                android:gravity="center"
                 android:padding="6dp"
-                android:layout_marginStart="8dp"/>
+                android:text="Central"
+                android:textColor="@color/tag_text"
+                android:textSize="12sp" />
         </LinearLayout>
 
         <!-- Descrição + Local + Data -->
@@ -162,174 +166,87 @@
             android:id="@+id/event_texts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="6dp">
+            android:layout_marginTop="6dp"
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/event_desc"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Amanhã às 14h no auditório principal. Inscrições abertas!"
-                android:textSize="13sp"
-                android:textColor="@color/muted_text"/>
+                android:textColor="@color/muted_text"
+                android:textSize="13sp" />
 
             <LinearLayout
                 android:id="@+id/event_meta"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:layout_marginTop="8dp"
-                android:gravity="center_vertical">
-
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
                 <ImageView
                     android:id="@+id/meta_icon_loc"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
+                    android:layout_marginEnd="6dp"
                     android:src="@android:drawable/ic_menu_mylocation"
-                    app:tint="#888888"
-                    android:layout_marginEnd="6dp"/>
+                    app:tint="#888888" />
 
                 <TextView
                     android:id="@+id/meta_loc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
                     android:text="Campus Central"
-                    android:textSize="12sp"
                     android:textColor="@color/muted_text"
-                    android:layout_marginEnd="16dp"/>
-
+                    android:textSize="12sp" />
                 <ImageView
                     android:id="@+id/meta_icon_date"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
+                    android:layout_marginEnd="6dp"
                     android:src="@android:drawable/ic_menu_recent_history"
-                    app:tint="#888888"
-                    android:layout_marginEnd="6dp"/>
+                    app:tint="#888888" />
 
                 <TextView
                     android:id="@+id/meta_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="01/11/2025"
-                    android:textSize="12sp"
-                    android:textColor="@color/muted_text"/>
+                    android:textColor="@color/muted_text"
+                    android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-
-    <!-- NAVBAR -->
     <LinearLayout
-        android:id="@+id/navBar"
-        android:layout_width="0dp"
-        android:layout_height="72dp"
-        android:orientation="horizontal"
-        android:background="@color/white"
-        android:elevation="6dp"
-        android:gravity="center"
+        android:id="@+id/bottom_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <!-- ITEM Início -->
-        <LinearLayout
-            android:id="@+id/nav_home"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
+        <!-- FAB diretamente aqui -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/nav_home_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_view"
-                app:tint="@color/primary_red"/>
-
-            <TextView
-                android:id="@+id/nav_home_text"
+            <include
+                android:id="@+id/fab_add"
+                layout="@layout/component_fab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Início"
-                android:textSize="12sp"
-                android:textColor="@color/primary_red"/>
-        </LinearLayout>
+                android:layout_gravity="end|bottom"
+                android:layout_marginEnd="24dp"
+                android:layout_marginBottom="16dp" />
+        </FrameLayout>
 
-        <!-- ITEM Locais -->
-        <LinearLayout
-            android:id="@+id/nav_locais"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <ImageView
-                android:id="@+id/nav_locais_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_mapmode"
-                app:tint="#666666" />
-
-            <TextView
-                android:id="@+id/nav_locais_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Locais"
-                android:textSize="12sp"
-                android:textColor="#666666"/>
-        </LinearLayout>
-
-        <!-- ITEM Avisos -->
-        <LinearLayout
-            android:id="@+id/nav_avisos"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <ImageView
-                android:id="@+id/nav_avisos_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_info_details"
-                app:tint="#666666"/>
-
-            <TextView
-                android:id="@+id/nav_avisos_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Avisos"
-                android:textSize="12sp"
-                android:textColor="#666666"/>
-        </LinearLayout>
-
-        <!-- ITEM Perfil -->
-        <LinearLayout
-            android:id="@+id/nav_perfil"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <ImageView
-                android:id="@+id/nav_perfil_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@android:drawable/ic_menu_myplaces"
-                app:tint="#666666"/>
-
-            <TextView
-                android:id="@+id/nav_perfil_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Perfil"
-                android:textSize="12sp"
-                android:textColor="#666666"/>
-        </LinearLayout>
-
+        <!-- Navbar abaixo -->
+        <include
+            android:id="@+id/navBar"
+            layout="@layout/component_navbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

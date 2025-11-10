@@ -1,4 +1,4 @@
-package com.example.localizacaoloq.util;
+package com.example.localizacaoloq.utils;
 
 public class Utilizador {
     private String Username;

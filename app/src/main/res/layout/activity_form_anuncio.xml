@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F9F9F9">
+
+    <!-- HEADER Simples para Criar Anúncio -->
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical"
+        android:background="#FFFFFF"
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_revert"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Voltar"
+            android:layout_marginEnd="16dp" />
+        <TextView
+            android:id="@+id/title_anuncio"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Criar Anúncio"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:gravity="left" />
+        <View
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
+    </LinearLayout>
+
+    <!-- ScrollView para conteúdo rolável -->
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintBottom_toTopOf="@id/btn_publicar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- LinearLayout Principal do Formulário -->
+        <LinearLayout
+            android:id="@+id/form_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <!-- CARD Informações Básicas -->
+            <LinearLayout
+                android:id="@+id/card_info_basicas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="8dp"
+                android:background="#FFFFFF"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Informações Básicas"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="16dp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/input_titulo_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                    android:background="#FFFFFF"
+                    app:boxBackgroundColor="#FFFFFF"
+                    app:boxStrokeColor="#E55C4D"
+                    app:hintTextColor="#E55C4D"
+                    app:boxStrokeWidth="0dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/input_titulo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Título"
+                        android:text="Ex: Palestra sobre IA"
+                        android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/input_mensagem_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                    android:background="#FFFFFF"
+                    app:boxBackgroundColor="#FFFFFF"
+                    app:boxStrokeColor="#E55C4D"
+                    app:hintTextColor="#E55C4D"
+                    app:boxStrokeWidth="0dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/input_mensagem"
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:hint="Mensagem"
+                        android:text="Descreva o anúncio..."
+                        android:textSize="14sp"
+                        android:gravity="top"
+                        android:inputType="textMultiLine" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/input_local_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                    android:background="#FFFFFF"
+                    app:boxBackgroundColor="#FFFFFF"
+                    app:boxStrokeColor="#E55C4D"
+                    app:hintTextColor="#E55C4D"
+                    app:boxStrokeWidth="0dp"
+                    app:endIconMode="dropdown_menu">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/input_local"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Selecione um local"
+                        android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+            <!-- CARD Modo de Entrega -->
+            <LinearLayout
+                android:id="@+id/card_modo_entrega"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="12dp"
+                android:background="#FFFFFF"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Modo de Entrega"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="16dp" />
+
+                <RadioGroup
+                    android:id="@+id/radio_group_entrega"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/radio_centralizado"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Centralizado (Servidor)\nEntrega via servidor central"
+                        android:checked="true"
+                        android:textSize="14sp"
+                        android:buttonTint="#E55C4D"
+                        android:layout_marginBottom="8dp" />
+
+                    <RadioButton
+                        android:id="@+id/radio_descentralizado"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Descentralizado (WiFi-Direct)\nEntrega peer-to-peer"
+                        android:textSize="14sp"
+                        android:buttonTint="#E55C4D" />
+
+                </RadioGroup>
+
+            </LinearLayout>
+
+            <!-- CARD Política de Visibilidade -->
+            <LinearLayout
+                android:id="@+id/card_politica_visibilidade"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="12dp"
+                android:background="#FFFFFF"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Política de Visibilidade"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="16dp" />
+
+                <RadioGroup
+                    android:id="@+id/radio_group_politica"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <RadioButton
+                        android:id="@+id/radio_whitelist"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Whitelist (Permitir apenas)"
+                        android:textSize="14sp"
+                        android:buttonTint="#E55C4D"
+                        android:layout_marginBottom="8dp" />
+
+                    <RadioButton
+                        android:id="@+id/radio_blacklist"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Blacklist (Bloquear)"
+                        android:checked="true"
+                        android:textSize="14sp"
+                        android:buttonTint="#E55C4D" />
+
+                </RadioGroup>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/input_restricoes_existentes_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                    android:background="#FFFFFF"
+                    app:boxBackgroundColor="#FFFFFF"
+                    app:boxStrokeColor="#E55C4D"
+                    app:hintTextColor="#E55C4D"
+                    app:boxStrokeWidth="0dp"
+                    app:endIconMode="dropdown_menu">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/input_restricoes_existentes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Selecionar restrição existente"
+                        android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Restrições"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/input_restricao_chave_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        android:background="#FFFFFF"
+                        app:boxBackgroundColor="#FFFFFF"
+                        app:boxStrokeColor="#E55C4D"
+                        app:hintTextColor="#E55C4D"
+                        app:boxStrokeWidth="0dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_restricao_chave"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Chave"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/input_restricao_valor_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        android:background="#FFFFFF"
+                        app:boxBackgroundColor="#FFFFFF"
+                        app:boxStrokeColor="#E55C4D"
+                        app:hintTextColor="#E55C4D"
+                        app:boxStrokeWidth="0dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_restricao_valor"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Valor"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btn_adicionar_restricao"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="+ Adicionar Restrição"
+                    android:textSize="14sp"
+                    android:textColor="#E55C4D"
+                    android:background="@android:color/transparent"
+                    android:layout_gravity="start" />
+
+            </LinearLayout>
+
+            <!-- CARD Janela Temporal -->
+            <LinearLayout
+                android:id="@+id/card_janela_temporal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginTop="12dp"
+                android:background="#FFFFFF"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Janela Temporal"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="16dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Início"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:gravity="start" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/input_inicio_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        android:background="#FFFFFF"
+                        app:boxBackgroundColor="#FFFFFF"
+                        app:boxStrokeColor="#E55C4D"
+                        app:hintTextColor="#E55C4D"
+                        app:boxStrokeWidth="0dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_inicio"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="dd/mm/aaaa --:--"
+                            android:inputType="date|time"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Fim"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:gravity="start" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/input_fim_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        android:background="#FFFFFF"
+                        app:boxBackgroundColor="#FFFFFF"
+                        app:boxStrokeColor="#E55C4D"
+                        app:hintTextColor="#E55C4D"
+                        app:boxStrokeWidth="0dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_fim"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="dd/mm/aaaa --:--"
+                            android:inputType="date|time"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- BOTÃO Publicar Anúncio -->
+    <Button
+        android:id="@+id/btn_publicar"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:text="Publicar Anúncio"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:backgroundTint="#E55C4D"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

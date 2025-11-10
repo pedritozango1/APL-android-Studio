@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/navBar"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:orientation="horizontal"
+    android:background="@color/white"
+    android:elevation="6dp"
+    android:gravity="center">
+
+    <!-- ITEM Início -->
+    <LinearLayout
+        android:id="@+id/nav_home"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="10dp">
+
+        <ImageView
+            android:id="@+id/nav_home_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_view"
+            app:tint="@color/primary_red"/>
+
+        <TextView
+            android:id="@+id/nav_home_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Início"
+            android:textSize="12sp"
+            android:textColor="@color/primary_red"/>
+    </LinearLayout>
+
+    <!-- ITEM Locais -->
+    <LinearLayout
+        android:id="@+id/nav_locais"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/nav_locais_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_mapmode"
+            app:tint="#666666" />
+
+        <TextView
+            android:id="@+id/nav_locais_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Locais"
+            android:textSize="12sp"
+            android:textColor="#666666"/>
+    </LinearLayout>
+
+    <!-- ITEM Avisos -->
+    <LinearLayout
+        android:id="@+id/nav_avisos"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/nav_avisos_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_info_details"
+            app:tint="#666666"/>
+
+        <TextView
+            android:id="@+id/nav_avisos_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Avisos"
+            android:textSize="12sp"
+            android:textColor="#666666"/>
+    </LinearLayout>
+
+    <!-- ITEM Perfil -->
+    <LinearLayout
+        android:id="@+id/nav_perfil"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/nav_perfil_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_myplaces"
+            app:tint="#666666"/>
+
+        <TextView
+            android:id="@+id/nav_perfil_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Perfil"
+            android:textSize="12sp"
+            android:textColor="#666666"/>
+    </LinearLayout>
+
+</LinearLayout>
