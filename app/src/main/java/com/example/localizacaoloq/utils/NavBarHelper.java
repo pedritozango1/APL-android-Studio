@@ -8,11 +8,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.localizacaoloq.FormHome;
-import com.example.localizacaoloq.LocalForm;
-import com.example.localizacaoloq.FormAviso;
+import com.example.localizacaoloq.activities.FormHome;
+import com.example.localizacaoloq.activities.LocalForm;
+import com.example.localizacaoloq.activities.FormAviso;
 import com.example.localizacaoloq.R;
-import com.example.localizacaoloq.FormPerfil;
+import com.example.localizacaoloq.activities.FormPerfil;
 
 public class NavBarHelper {
     private static final int ACTIVE_COLOR = Color.RED; // Ou defina como Color.parseColor("#F44336") para primary_red

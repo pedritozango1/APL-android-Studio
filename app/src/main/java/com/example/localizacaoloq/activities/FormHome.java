@@ -1,12 +1,10 @@
-package com.example.localizacaoloq;
+package com.example.localizacaoloq.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +12,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.localizacaoloq.R;
 import com.example.localizacaoloq.utils.NavBarHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 

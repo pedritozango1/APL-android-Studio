@@ -12,31 +12,34 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LocalizacaoLoq">
         <activity
-            android:name=".FormAnuncio"
+            android:name=".activities.MainActivity"
             android:exported="false" />
         <activity
-            android:name=".FormPerfil"
+            android:name=".activities.FormAnuncio"
             android:exported="false" />
         <activity
-            android:name=".FormAviso"
+            android:name=".activities.FormPerfil"
             android:exported="false" />
         <activity
-            android:name=".FormLocalRegistado"
+            android:name=".activities.FormAviso"
             android:exported="false" />
         <activity
-            android:name=".LocalForm"
+            android:name=".activities.FormLocalRegistado"
+            android:exported="false" />
+        <activity
+            android:name=".activities.LocalForm"
             android:exported="false" />
         <activity
             android:name=".utils.Localdb"
             android:exported="false" />
         <activity
-            android:name=".FormHome"
+            android:name=".activities.FormHome"
             android:exported="false" />
         <activity
-            android:name=".CriarConta"
+            android:name=".activities.CriarConta"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

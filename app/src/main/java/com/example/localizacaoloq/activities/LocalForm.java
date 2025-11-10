@@ -1,5 +1,6 @@
-package com.example.localizacaoloq;
+package com.example.localizacaoloq.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -10,27 +11,34 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class FormLocalRegistado extends AppCompatActivity {
-    private ImageButton btnBack;
+import com.example.localizacaoloq.R;
+import com.example.localizacaoloq.utils.NavBarHelper;
+
+public class LocalForm extends AppCompatActivity {
+    private ImageButton btnAdd;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_form_local_registado);
+        setContentView(R.layout.activity_local_form);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        btnBack=findViewById(R.id.btnBack);
-        btnBack.setOnClickListener(new View.OnClickListener() {
+        NavBarHelper.setup(this);
+        btnAdd=findViewById(R.id.btnAdd);
+        btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                startRegistarLocal();
             }
         });
     }
-    private  void CloseAtivity(){
 
+    private void startRegistarLocal(){
+        Intent intent=new Intent(this, FormLocalRegistado.class);
+        startActivity(intent);
     }
+
 }
