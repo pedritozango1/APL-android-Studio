@@ -98,6 +98,7 @@
                         android:textColor="#333"/>
 
                     <EditText
+                        android:id="@+id/etUsername"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
@@ -114,6 +115,7 @@
                         android:textColor="#333"/>
 
                     <EditText
+                        android:id="@+id/etPassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
@@ -131,6 +133,7 @@
                         android:textColor="#333"/>
 
                     <EditText
+                        android:id="@+id/etConfirmPassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="24dp"
@@ -140,6 +143,7 @@
                         android:background="@android:drawable/edit_text"/>
 
                     <Button
+                        android:id="@+id/btnCreateAccount"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Criar Conta"
@@ -166,6 +170,7 @@
                         android:textColor="#666"/>
 
                     <Button
+                        android:id="@+id/btnLoginLink"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Fazer login"

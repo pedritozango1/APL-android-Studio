@@ -37,7 +37,9 @@
             android:textColor="#333"
             android:gravity="center" />
 
-        <View android:layout_width="40dp" android:layout_height="1dp" />
+        <View
+            android:layout_width="40dp"
+            android:layout_height="1dp" />
     </LinearLayout>
 
     <!-- ScrollView com o formulário -->
@@ -87,7 +89,6 @@
                         android:paddingEnd="12dp"
                         android:textSize="14sp"
                         android:inputType="text" />
-
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -211,7 +212,6 @@
                                 android:textColor="#666" />
                         </LinearLayout>
                     </LinearLayout>
-
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -220,9 +220,11 @@
                 android:id="@+id/cardGpsConfig"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="2dp"
-                android:backgroundTint="#FFFFFF">
+                android:backgroundTint="#FFFFFF"
+                android:visibility="visible">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -298,7 +300,55 @@
                         android:paddingStart="12dp"
                         android:paddingEnd="12dp"
                         android:textSize="14sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
+            <!-- Card: Configuração WiFi (visível apenas se WiFi selecionado) -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardWifiConfig"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                android:backgroundTint="#FFFFFF"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Configuração WiFi"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#333"
+                        android:layout_marginBottom="12dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="IDs de WiFi (separados por vírgula)"
+                        android:textSize="13sp"
+                        android:textColor="#555"
+                        android:layout_marginTop="8dp" />
+
+                    <EditText
+                        android:id="@+id/etWifiIds"
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:hint="Ex: zap-ponto-largoX, wifi-campus-central, beacon-publico1"
+                        android:inputType="text"
+                        android:background="@drawable/edittext_background"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:textSize="14sp"
+                        android:gravity="top"
+                        android:minLines="3" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
