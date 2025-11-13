@@ -1,177 +1,451 @@
 package com.example.localizacaoloq.activities;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.core.app.ActivityCompat;
 
 import com.example.localizacaoloq.R;
-import com.example.localizacaoloq.model.LocalGPS;
-import com.example.localizacaoloq.model.LocalRepository;
-import com.example.localizacaoloq.model.LocalWifi;
 
-import java.util.Arrays;
+import com.example.localizacaoloq.model.Local;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.radiobutton.MaterialRadioButton;
 
-public class FormLocalRegistado extends AppCompatActivity {
-    private ImageButton btnBack;
-    private RadioButton radioGps, radioWifi;
-    private CardView cardGpsConfig, cardWifiConfig;
-    private EditText etLocalName, etLatitude, etLongitude, etRadius, etWifiIds;
-    private Button btnCreate;
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
+import com.example.localizacaoloq.activities.FullscreenMap;
+import com.example.localizacaoloq.activities.FormHome;
+
+public class FromLocalRegistado extends AppCompatActivity implements OnMapReadyCallback {
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private static final int MAP_REQUEST_CODE = 100;
+
+    private EditText etLocalName, etLatitude, etLongitude, etRadius, etSearchAddress;
+    private MaterialRadioButton radioGps, radioWifi;
+    private LinearLayout optionGps, optionWifi;
+    private CardView cardGpsConfig, cardMap;
+    private Button btnCreate, btnUpdateMap, btnSearchAddress, btnMyLocation, btnExpandMap;
+    private ImageButton btnBack,btnViewLocals;
+
+
+    private GoogleMap mMap;
+    private Marker currentMarker;
+    private Circle currentCircle;
+    private boolean isUpdatingFromMap = false;
+
+    private DatabaseHelper dbHelper;
+    private Geocoder geocoder;
+    private FusedLocationProviderClient fusedLocationClient;
+
+    private ActivityResultLauncher<Intent> fullscreenMapLauncher;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_form_local_registado);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-        inicializarViews();
-        configurarEventos();
+        setContentView(R.layout.activity_main);
 
-        toggleConfiguracao(true);
-        btnBack=findViewById(R.id.btnBack);
-        btnBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        dbHelper = new DatabaseHelper(this);
+        geocoder = new Geocoder(this, Locale.getDefault());
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        initializeViews();
+        setupListeners();
+        initializeMap();
+        setupFullscreenMapLauncher();
     }
-    private void inicializarViews() {
-        btnBack = findViewById(R.id.btnBack);
-        radioGps = findViewById(R.id.radioGps);
-        radioWifi = findViewById(R.id.radioWifi);
-        cardGpsConfig = findViewById(R.id.cardGpsConfig);
-        cardWifiConfig = findViewById(R.id.cardWifiConfig);
+
+    private void initializeViews() {
         etLocalName = findViewById(R.id.etLocalName);
         etLatitude = findViewById(R.id.etLatitude);
         etLongitude = findViewById(R.id.etLongitude);
         etRadius = findViewById(R.id.etRadius);
-        etWifiIds = findViewById(R.id.etWifiIds);
+        etSearchAddress = findViewById(R.id.etSearchAddress);
+
+        radioGps = findViewById(R.id.radioGps);
+        radioWifi = findViewById(R.id.radioWifi);
+
+        optionGps = findViewById(R.id.optionGps);
+        optionWifi = findViewById(R.id.optionWifi);
+
+        cardGpsConfig = findViewById(R.id.cardGpsConfig);
+        cardMap = findViewById(R.id.cardMap);
+
         btnCreate = findViewById(R.id.btnCreate);
+        btnUpdateMap = findViewById(R.id.btnUpdateMap);
+        btnSearchAddress = findViewById(R.id.btnSearchAddress);
+        btnMyLocation = findViewById(R.id.btnMyLocation);
+        btnExpandMap = findViewById(R.id.btnExpandMap);
+        btnViewLocals = findViewById(R.id.btnViewLocals);
+        btnBack = findViewById(R.id.btnBack);
     }
-    private void configurarEventos() {
+
+    private void setupListeners() {
         btnBack.setOnClickListener(v -> finish());
 
-        // Listeners para as opções de tipo (radio buttons via LinearLayout clicks para toggle)
-        LinearLayout optionGps = findViewById(R.id.optionGps);
-        LinearLayout optionWifi = findViewById(R.id.optionWifi);
-
+        // Opção GPS
         optionGps.setOnClickListener(v -> {
             radioGps.setChecked(true);
             radioWifi.setChecked(false);
-            toggleConfiguracao(true); // Mostrar GPS
+            cardGpsConfig.setVisibility(View.VISIBLE);
+            cardMap.setVisibility(View.VISIBLE);
         });
 
+        radioGps.setOnClickListener(v -> {
+            radioWifi.setChecked(false);
+            cardGpsConfig.setVisibility(View.VISIBLE);
+            cardMap.setVisibility(View.VISIBLE);
+        });
+
+        // Opção WiFi
         optionWifi.setOnClickListener(v -> {
             radioWifi.setChecked(true);
             radioGps.setChecked(false);
-            toggleConfiguracao(false); // Mostrar WiFi
-        });
-
-        // Listener para radio buttons diretos (caso clicados isoladamente)
-        radioGps.setOnClickListener(v -> {
-            radioGps.setChecked(true);
-            radioWifi.setChecked(false);
-            toggleConfiguracao(true);
+            cardGpsConfig.setVisibility(View.GONE);
+            cardMap.setVisibility(View.GONE);
         });
 
         radioWifi.setOnClickListener(v -> {
-            radioWifi.setChecked(true);
             radioGps.setChecked(false);
-            toggleConfiguracao(false);
+            cardGpsConfig.setVisibility(View.GONE);
+            cardMap.setVisibility(View.GONE);
         });
 
-        // Botão criar local
-        btnCreate.setOnClickListener(v -> criarLocal());
+        // Atualizar mapa
+        btnUpdateMap.setOnClickListener(v -> updateMapFromInputs());
+
+        // Buscar endereço
+        btnSearchAddress.setOnClickListener(v -> searchAddress());
+
+        // Minha localização
+        btnMyLocation.setOnClickListener(v -> getMyLocation());
+
+        // Expandir mapa
+        btnExpandMap.setOnClickListener(v -> openFullscreenMap());
+
+        // Ver lista de locais
+        btnViewLocals.setOnClickListener(v -> openLocalsList());
+
+        // Criar local
+        btnCreate.setOnClickListener(v -> createLocal());
+
+        // Listeners de texto
+        setupCoordinateListeners();
     }
 
-    private void toggleConfiguracao(boolean isGps) {
-        if (isGps) {
-            cardGpsConfig.setVisibility(View.VISIBLE);
-            cardWifiConfig.setVisibility(View.GONE);
-        } else {
-            cardGpsConfig.setVisibility(View.GONE);
-            cardWifiConfig.setVisibility(View.VISIBLE);
+    private void setupCoordinateListeners() {
+        TextWatcher coordinateWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (!isUpdatingFromMap && mMap != null) {
+                    updateCircleRadius();
+                }
+            }
+        };
+
+        etRadius.addTextChangedListener(coordinateWatcher);
+    }
+
+    private void initializeMap() {
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.mapFragment);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
         }
     }
-    private void criarLocal() {
 
-        String nome = etLocalName.getText().toString().trim();
-        if (nome.isEmpty()) {
-            Toast.makeText(this, "O nome do local é obrigatório!", Toast.LENGTH_SHORT).show();
+    private void setupFullscreenMapLauncher() {
+        fullscreenMapLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        double lat = result.getData().getDoubleExtra("latitude", 0);
+                        double lng = result.getData().getDoubleExtra("longitude", 0);
+                        double rad = result.getData().getDoubleExtra("radius", 500);
+
+                        isUpdatingFromMap = true;
+                        etLatitude.setText(String.format(Locale.getDefault(), "%.6f", lat));
+                        etLongitude.setText(String.format(Locale.getDefault(), "%.6f", lng));
+                        etRadius.setText(String.format(Locale.getDefault(), "%.0f", rad));
+                        isUpdatingFromMap = false;
+
+                        updateMapFromInputs();
+                        getAddressFromLocation(lat, lng);
+                    }
+                }
+        );
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.getUiSettings().setZoomControlsEnabled(false);
+        mMap.getUiSettings().setMapToolbarEnabled(false);
+
+        updateMapFromInputs();
+
+        mMap.setOnMapClickListener(latLng -> {
+            isUpdatingFromMap = true;
+            updateMarkerAndInputs(latLng);
+            isUpdatingFromMap = false;
+        });
+
+        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {}
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+                if (currentCircle != null) {
+                    currentCircle.setCenter(marker.getPosition());
+                }
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                isUpdatingFromMap = true;
+                updateMarkerAndInputs(marker.getPosition());
+                isUpdatingFromMap = false;
+            }
+        });
+    }
+
+    private void updateMapFromInputs() {
+        try {
+            double lat = Double.parseDouble(etLatitude.getText().toString());
+            double lng = Double.parseDouble(etLongitude.getText().toString());
+            double radius = Double.parseDouble(etRadius.getText().toString());
+
+            LatLng position = new LatLng(lat, lng);
+            updateMarkerAndCircle(position, radius);
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Coordenadas inválidas", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void updateMarkerAndInputs(LatLng latLng) {
+        etLatitude.setText(String.format(Locale.getDefault(), "%.6f", latLng.latitude));
+        etLongitude.setText(String.format(Locale.getDefault(), "%.6f", latLng.longitude));
+
+        try {
+            double radius = Double.parseDouble(etRadius.getText().toString());
+            updateMarkerAndCircle(latLng, radius);
+        } catch (NumberFormatException e) {
+            updateMarkerAndCircle(latLng, 500);
+        }
+
+        getAddressFromLocation(latLng.latitude, latLng.longitude);
+    }
+
+    private void updateMarkerAndCircle(LatLng position, double radius) {
+        if (currentMarker != null) {
+            currentMarker.remove();
+        }
+        if (currentCircle != null) {
+            currentCircle.remove();
+        }
+
+        currentMarker = mMap.addMarker(new MarkerOptions()
+                .position(position)
+                .title("Local Selecionado")
+                .draggable(true));
+
+        currentCircle = mMap.addCircle(new CircleOptions()
+                .center(position)
+                .radius(radius)
+                .strokeColor(Color.parseColor("#D32F2F"))
+                .strokeWidth(2)
+                .fillColor(Color.parseColor("#33D32F2F")));
+    }
+
+    private void updateCircleRadius() {
+        if (currentCircle != null && currentMarker != null) {
+            try {
+                double radius = Double.parseDouble(etRadius.getText().toString());
+                currentCircle.setRadius(radius);
+            } catch (NumberFormatException ignored) {}
+        }
+    }
+
+    private void searchAddress() {
+        String addressText = etSearchAddress.getText().toString().trim();
+        if (addressText.isEmpty()) {
+            Toast.makeText(this, "Digite um endereço", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        boolean isGps = radioGps.isChecked();
-        if (isGps) {
-            // Validação GPS
-            String latStr = etLatitude.getText().toString().trim();
-            String lonStr = etLongitude.getText().toString().trim();
-            String radiusStr = etRadius.getText().toString().trim();
+        try {
+            List<Address> addresses = geocoder.getFromLocationName(addressText, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address address = addresses.get(0);
+                LatLng location = new LatLng(address.getLatitude(), address.getLongitude());
 
-            if (latStr.isEmpty() || lonStr.isEmpty() || radiusStr.isEmpty()) {
-                Toast.makeText(this, "Preencha todos os campos de GPS!", Toast.LENGTH_SHORT).show();
-                return;
+                isUpdatingFromMap = true;
+                etLatitude.setText(String.format(Locale.getDefault(), "%.6f", address.getLatitude()));
+                etLongitude.setText(String.format(Locale.getDefault(), "%.6f", address.getLongitude()));
+                isUpdatingFromMap = false;
+
+                updateMarkerAndCircle(location, Double.parseDouble(etRadius.getText().toString()));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 16));
+
+                Toast.makeText(this, "Endereço encontrado!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Endereço não encontrado", Toast.LENGTH_SHORT).show();
             }
-
-            try {
-                double lat = Double.parseDouble(latStr);
-                double lon = Double.parseDouble(lonStr);
-                int radius = Integer.parseInt(radiusStr);
-
-                if (radius <= 0) {
-                    Toast.makeText(this, "O raio deve ser maior que 0!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                LocalRepository.getInstance().adicionarLocalGPS(new LocalGPS(nome,lat,lon,12,radius));
-                // Aqui: Criar local GPS (ex: salvar em repo ou DB)
-                Toast.makeText(this, String.format("Local GPS criado: %s [%.4f, %.4f, %dm]", nome, lat, lon, radius), Toast.LENGTH_LONG).show();
-                // finish(); // Opcional: Voltar após criação
-
-            } catch (NumberFormatException e) {
-                Toast.makeText(this, "Formato inválido nos campos de GPS!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        } else {
-            // Validação WiFi
-            String wifiIdsStr = etWifiIds.getText().toString().trim();
-            if (wifiIdsStr.isEmpty()) {
-                Toast.makeText(this, "Insira pelo menos um ID de WiFi!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            String[] wifiIds = wifiIdsStr.split(",");
-            if (wifiIds.length == 0) {
-                Toast.makeText(this, "IDs de WiFi inválidos!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            LocalRepository.getInstance().adicionarLocalWifi(new LocalWifi(nome,Arrays.asList(wifiIds)));
-            // Aqui: Criar local WiFi (ex: salvar lista de IDs)
-            Toast.makeText(this, String.format("Local WiFi criado: %s [%d IDs]", nome, wifiIds.length), Toast.LENGTH_LONG).show();
-            // finish(); // Opcional: Voltar após criação
+        } catch (IOException e) {
+            Toast.makeText(this, "Erro ao buscar endereço", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
-
-        // Limpar campos (opcional)
-        etLocalName.setText("");
-        etLatitude.setText("38.7223");
-        etLongitude.setText("-9.1393");
-        etRadius.setText("500");
-        etWifiIds.setText("");
     }
 
+    private void getAddressFromLocation(double lat, double lng) {
+        try {
+            List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address address = addresses.get(0);
+                String addressText = address.getAddressLine(0);
+                etSearchAddress.setText(addressText);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getMyLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+            return;
+        }
+
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, location -> {
+                    if (location != null) {
+                        LatLng myLocation = new LatLng(location.getLatitude(), location.getLongitude());
+
+                        isUpdatingFromMap = true;
+                        updateMarkerAndInputs(myLocation);
+                        isUpdatingFromMap = false;
+
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 16));
+                        Toast.makeText(this, "Localização obtida!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Não foi possível obter localização", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void openFullscreenMap() {
+        try {
+            double lat = Double.parseDouble(etLatitude.getText().toString());
+            double lng = Double.parseDouble(etLongitude.getText().toString());
+            double radius = Double.parseDouble(etRadius.getText().toString());
+
+            Intent intent = new Intent(this, com.example.localizacaoloq.activities.FullscreenMap.class);
+            intent.putExtra("latitude", lat);
+            intent.putExtra("longitude", lng);
+            intent.putExtra("radius", radius);
+            fullscreenMapLauncher.launch(intent);
+
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Coordenadas inválidas", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void openLocalsList() {
+        Intent intent = new Intent(this, FormHome.class);
+        startActivity(intent);
+    }
+
+    private void createLocal() {
+        String localName = etLocalName.getText().toString().trim();
+
+        if (localName.isEmpty()) {
+            Toast.makeText(this, "Por favor, insira o nome do local", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (radioGps.isChecked()) {
+            try {
+                double lat = Double.parseDouble(etLatitude.getText().toString());
+                double lng = Double.parseDouble(etLongitude.getText().toString());
+                double radius = Double.parseDouble(etRadius.getText().toString());
+
+                Local local = new Local(localName, "GPS", lat, lng, radius);
+                local.setEndereco(etSearchAddress.getText().toString());
+
+                long id = dbHelper.inserirLocal(local);
+
+                if (id > 0) {
+                    Toast.makeText(this, "Local criado com sucesso!", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    Toast.makeText(this, "Erro ao criar local", Toast.LENGTH_SHORT).show();
+                }
+
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Coordenadas inválidas", Toast.LENGTH_SHORT).show();
+            }
+        } else if (radioWifi.isChecked()) {
+            Local local = new Local();
+            local.setNome(localName);
+            local.setTipo("WIFI");
+
+            long id = dbHelper.inserirLocal(local);
+
+            if (id > 0) {
+                Toast.makeText(this, "Local WiFi criado!", Toast.LENGTH_SHORT).show();
+                finish();
+            } else {
+                Toast.makeText(this, "Erro ao criar local", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dbHelper != null) {
+            dbHelper.close();
+        }
+    }
 }
