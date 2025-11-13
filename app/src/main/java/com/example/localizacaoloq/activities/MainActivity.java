@@ -14,16 +14,16 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.localizacaoloq.R;
+import com.example.localizacaoloq.Repository.AuthRepository;
 import com.example.localizacaoloq.model.Auth;
+import com.example.localizacaoloq.model.Session;
 import com.example.localizacaoloq.model.SessionManager;
 import com.example.localizacaoloq.model.User;
-import com.example.localizacaoloq.model.UserRepository;
+import com.example.localizacaoloq.Repository.UserRepository;
 
 public class MainActivity extends AppCompatActivity {
     private Button btnLogar;
     private Button btnCriar;
-    private UserRepository repository;
-    private SessionManager sessionManager;
     private Auth auth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,10 +35,17 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        repository = (UserRepository) getApplicationContext(); // Assumindo que UserRepository é singleton
-        sessionManager = new SessionManager();
-        auth = new Auth(repository, sessionManager);
-        inicializarComp();
+        SessionManager sessionManager=new SessionManager(this);
+        String id=sessionManager.getSessionId();
+        if(!id.isEmpty()){
+            new Thread(() -> {
+                AuthRepository authrep = new AuthRepository();
+                Session session = authrep.pegarIdSessao(id);
+                if (session != null && session.isActive()) {
+                    runOnUiThread(() -> startHome());
+                }
+            }).start();
+        }
         btnCriar=findViewById(R.id.btnConta);
         btnLogar=findViewById(R.id.btnLoginSistema);
 
@@ -56,33 +63,38 @@ public class MainActivity extends AppCompatActivity {
 
                 String nome = etUsername.getText().toString().trim();
                 String senha = etPassword.getText().toString();
-
-                // Validações básicas
                 if (nome.isEmpty() || senha.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "Preencha todos os campos!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                startLogarNosistema(nome, senha);
+                User utilizador = new User(nome, senha);
+                AuthRepository authRepository = new AuthRepository();
+                new Thread(() -> {
+                    Session auth = authRepository.login(utilizador);
+                    runOnUiThread(() -> {
+                        if (auth != null && auth.getSessionId() != null) {
+                            // Salvar sessionId localmente
+                            SessionManager sessionManager = new SessionManager(MainActivity.this);
+                            sessionManager.saveSession(auth.getSessionId());
+                            Toast.makeText(MainActivity.this, "Login bem-sucedido!", Toast.LENGTH_SHORT).show();
+                            // Ir para HomeActivity
+                            startHome();
+                        } else {
+                            Toast.makeText(MainActivity.this, "Credenciais inválidas!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }).start();
             }
         });
     }
-    private void startLogarNosistema(String nome,String senha){
-        String idSession=auth.login(nome,senha);
-        if(idSession!=null){
-            Intent navegar = new Intent(this, FormHome.class);
-            navegar.putExtra("sessionId", idSession);
-            startActivity(navegar);
-        }else{
-            Toast.makeText(this,"Erro usuario não existe no sistema",Toast.LENGTH_SHORT).show();
-        }
-    }
+
     private void startCriarConta(){
         Intent navegar=new Intent(this, CriarConta.class);
         startActivity((navegar));
     }
-    private  void inicializarComp(){
-        UserRepository repository =(UserRepository) getApplicationContext();
-        repository.adicionar(new User("alice", "123"));
-        repository.adicionar(new User("pedro", "abc"));
+    private void startHome(){
+        Intent intent = new Intent(MainActivity.this, FormHome.class);
+        startActivity(intent);
     }
+
 }

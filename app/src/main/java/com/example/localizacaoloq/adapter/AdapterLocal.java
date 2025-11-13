@@ -86,18 +86,19 @@ public class AdapterLocal extends RecyclerView.Adapter<AdapterLocal.ViewHolder> 
         }
 
         public void bind(Local local) {
+
             tvNome.setText(local.getNome());
             tvTipo.setText(local.getTipo());
 
             if (local instanceof LocalGPS) {
                 LocalGPS gps = (LocalGPS) local;
                 tvDetalhes.setText(String.format("%.4f, %.4f • Raio: %.0fm", gps.getLatitude(), gps.getLongitude(), gps.getRaio()));
-                ivIcon.setImageResource(R.drawable.ic_menu_mylocation); // Ou usa tint vermelho
+                ivIcon.setImageResource(R.drawable.ic_menu_mylocation);
                 ivIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.primary_red), android.graphics.PorterDuff.Mode.SRC_IN); // Ajusta cor
             } else if (local instanceof LocalWifi) {
                 LocalWifi wifi = (LocalWifi) local;
                 tvDetalhes.setText(String.format("%d rede(s): %s", wifi.getWifiIds().size(), String.join(", ", wifi.getWifiIds().subList(0, Math.min(2, wifi.getWifiIds().size()))))); // Mostra até 2 IDs
-                ivIcon.setImageResource(R.drawable.ic_dialog_map); // Ou usa tint azul
+                ivIcon.setImageResource(R.drawable.ic_dialog_map);
                 ivIcon.setColorFilter(ContextCompat.getColor(itemView.getContext(), R.color.blue), android.graphics.PorterDuff.Mode.SRC_IN); // Ajusta cor
             }
         }

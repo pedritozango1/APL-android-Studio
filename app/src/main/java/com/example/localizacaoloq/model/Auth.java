@@ -1,36 +1,39 @@
 package com.example.localizacaoloq.model;
 
-import java.util.ArrayList;
+import com.example.localizacaoloq.Repository.UserRepository;
 
 public class Auth {
-    private UserRepository repository;
-    private SessionManager sessionManager;
+   private User user;
+   private String idSession;
+   private  boolean ative=true;
 
-    public Auth(UserRepository repository, SessionManager sessionManager) {
-        this.repository = repository;
-        this.sessionManager = sessionManager;
+    public boolean isAtive() {
+        return ative;
     }
 
-    // Método de login (recebe credenciais diretamente, retorna ID de sessão)
-    public String login(String nome, String password) {
-        User user = repository.encontrarPorCredenciais(nome, password);
-        if (user != null) {
-            String sessionId = sessionManager.criarSessao(user);
-            System.out.println("Login bem-sucedido! Sessão: " + sessionId);
-            return sessionId;
-        }
-        System.out.println("Credenciais inválidas!");
-        return null;
+    public void setAtive(boolean ative) {
+        this.ative = ative;
     }
 
-    // Método para verificar se uma sessão é válida
-    public boolean sessaoValida(String sessionId) {
-        return sessionManager.sessaoValida(sessionId);
+    public  Auth(User utilizador, String idSesssion){
+       this.idSession=idSesssion;
+       this.user=utilizador;
+   }
+
+    public String getIdSession() {
+        return idSession;
     }
 
-    // Método de logout
-    public void logout(String sessionId) {
-        sessionManager.terminarSessao(sessionId);
-        System.out.println("Sessão terminada!");
+
+    public void setIdSession(String idSession) {
+        this.idSession = idSession;
+    }
+
+    public User getUtilizador() {
+        return user;
+    }
+
+    public void setUtilizador(User utilizador) {
+        this.user = utilizador;
     }
 }

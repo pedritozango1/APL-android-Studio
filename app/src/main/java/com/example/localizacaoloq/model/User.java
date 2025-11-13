@@ -1,16 +1,16 @@
 package com.example.localizacaoloq.model;
 
 public class User {
-    private String nome;
+    private String username;
     private String password;
 
-    public User(String nome, String password) {
-        this.nome = nome;
+    public User(String username, String password) {
+        this.username = username;
         this.password = password;
     }
 
-    public String getNome() {
-        return nome;
+    public String getUsername() {
+        return username;
     }
 
     public String getPassword() {

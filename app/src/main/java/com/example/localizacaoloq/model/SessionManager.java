@@ -1,26 +1,27 @@
 package com.example.localizacaoloq.model;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 public class SessionManager {
-    private Map<String, User> sessoesAtivas = new HashMap<>();
+    private static final String PREF_NAME = "LocalizacaoLoqPrefs";
+    private static final String KEY_SESSION_ID = "sessionId";
+    private final SharedPreferences preferences;
+    private final SharedPreferences.Editor editor;
 
-    // Método para criar uma sessão e retornar o ID
-    public String criarSessao(User user) {
-        String sessionId = UUID.randomUUID().toString();
-        sessoesAtivas.put(sessionId, user);
-        return sessionId;
+    public SessionManager(Context context) {
+        preferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        editor = preferences.edit();
     }
-
-    // Método para verificar se uma sessão é válida
-    public boolean sessaoValida(String sessionId) {
-        return sessoesAtivas.containsKey(sessionId);
+    public void saveSession(String sessionId) {
+        editor.putString(KEY_SESSION_ID, sessionId);
+        editor.apply();
     }
-
-    // Método para terminar (logout) uma sessão
-    public void terminarSessao(String sessionId) {
-        sessoesAtivas.remove(sessionId);
+    public String getSessionId() {
+        return preferences.getString(KEY_SESSION_ID, null);
+    }
+    public void clearSession() {
+        editor.remove(KEY_SESSION_ID);
+        editor.apply();
     }
 }
