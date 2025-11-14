@@ -37,14 +37,7 @@
             android:textColor="#333"
             android:gravity="center" />
 
-        <ImageButton
-            android:id="@+id/btnViewLocals"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@android:drawable/ic_menu_agenda"
-            android:background="@android:color/transparent"
-            app:tint="#D32F2F"
-            android:contentDescription="Ver Locais" />
+        <View android:layout_width="40dp" android:layout_height="1dp" />
     </LinearLayout>
 
     <ScrollView
@@ -219,63 +212,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Card: Busca de Endereço -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardSearchAddress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                android:backgroundTint="#FFFFFF">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Buscar Endereço"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="#333"
-                        android:layout_marginBottom="8dp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-
-                        <EditText
-                            android:id="@+id/etSearchAddress"
-                            android:layout_width="0dp"
-                            android:layout_height="48dp"
-                            android:layout_weight="1"
-                            android:hint="Digite um endereço ou local"
-                            android:background="@drawable/edittext_background"
-                            android:paddingStart="12dp"
-                            android:paddingEnd="12dp"
-                            android:textSize="14sp"
-                            android:inputType="text"
-                            android:layout_marginEnd="8dp" />
-
-                        <Button
-                            android:id="@+id/btnSearchAddress"
-                            android:layout_width="wrap_content"
-                            android:layout_height="48dp"
-                            android:text="Buscar"
-                            android:textAllCaps="false"
-                            android:backgroundTint="#0288D1"
-                            app:cornerRadius="8dp" />
-                    </LinearLayout>
-
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
             <!-- Card: Configuração GPS -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardGpsConfig"
@@ -317,8 +253,10 @@
                         android:inputType="numberDecimal|numberSigned"
                         android:background="@drawable/edittext_background"
                         android:paddingStart="12dp"
+                        android:enabled="false"
                         android:paddingEnd="12dp"
                         android:textSize="14sp" />
+
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -337,6 +275,7 @@
                         android:background="@drawable/edittext_background"
                         android:paddingStart="12dp"
                         android:paddingEnd="12dp"
+                        android:enabled="false"
                         android:textSize="14sp" />
 
                     <TextView
@@ -352,40 +291,24 @@
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
                         android:text="500"
+                        android:enabled="false"
                         android:inputType="number"
                         android:background="@drawable/edittext_background"
                         android:paddingStart="12dp"
                         android:paddingEnd="12dp"
                         android:textSize="14sp" />
 
-                    <LinearLayout
+                    <!-- Botão para buscar coordenadas -->
+                    <Button
+                        android:id="@+id/btnMyLocation"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="12dp">
+                        android:layout_height="48dp"
+                        android:text="Minha Localização"
+                        android:textAllCaps="false"
+                        android:layout_marginTop="12dp"
+                        android:backgroundTint="#0288D1"
+                        app:cornerRadius="8dp" />
 
-                        <Button
-                            android:id="@+id/btnUpdateMap"
-                            android:layout_width="0dp"
-                            android:layout_height="48dp"
-                            android:layout_weight="1"
-                            android:text="Atualizar Mapa"
-                            android:textAllCaps="false"
-                            android:backgroundTint="#0288D1"
-                            android:layout_marginEnd="4dp"
-                            app:cornerRadius="8dp" />
-
-                        <Button
-                            android:id="@+id/btnMyLocation"
-                            android:layout_width="0dp"
-                            android:layout_height="48dp"
-                            android:layout_weight="1"
-                            android:text="Minha Localização"
-                            android:textAllCaps="false"
-                            android:backgroundTint="#4CAF50"
-                            android:layout_marginStart="4dp"
-                            app:cornerRadius="8dp" />
-                    </LinearLayout>
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -406,32 +329,14 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="12dp">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Localização no Mapa"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="#333" />
-
-                        <Button
-                            android:id="@+id/btnExpandMap"
-                            android:layout_width="wrap_content"
-                            android:layout_height="36dp"
-                            android:text="Expandir"
-                            android:textAllCaps="false"
-                            android:textSize="12sp"
-                            android:backgroundTint="#FF9800"
-                            app:cornerRadius="6dp" />
-                    </LinearLayout>
+                        android:text="Localização no Mapa"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="#333"
+                        android:layout_marginBottom="12dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -445,7 +350,7 @@
                         android:id="@+id/mapFragment"
                         android:name="com.google.android.gms.maps.SupportMapFragment"
                         android:layout_width="match_parent"
-                        android:layout_height="250dp" />
+                        android:layout_height="300dp" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
