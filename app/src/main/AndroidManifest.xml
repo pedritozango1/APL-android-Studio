@@ -19,6 +19,12 @@
         android:theme="@style/Theme.LocalizacaoLoq"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".activities.FormLocalRegistado"
+            android:exported="false" />
+        <activity
+            android:name=".activities.FormRegistarLocal"
+            android:exported="false" />
+        <activity
             android:name=".activities.FullscreenMap"
             android:exported="false" />
         <activity
