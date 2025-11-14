@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -26,7 +25,6 @@ import androidx.core.app.ActivityCompat;
 import com.example.localizacaoloq.R;
 
 import com.example.localizacaoloq.model.Local;
-import com.example.localizacaoloq.model.LocalWifi;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -52,12 +50,13 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private static final int MAP_REQUEST_CODE = 100;
 
-    private EditText etLocalName, etLatitude, etLongitude, etAltitude, etRadius, etSearchAddress;
+    private EditText etLocalName, etLatitude, etLongitude, etRadius, etSearchAddress;
     private MaterialRadioButton radioGps, radioWifi;
     private LinearLayout optionGps, optionWifi;
     private CardView cardGpsConfig, cardMap;
     private Button btnCreate, btnUpdateMap, btnSearchAddress, btnMyLocation, btnExpandMap;
-    private ImageButton btnBack, btnViewLocals;
+    private ImageButton btnBack,btnViewLocals;
+
 
     private GoogleMap mMap;
     private Marker currentMarker;
@@ -86,7 +85,6 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
         etLocalName = findViewById(R.id.etLocalName);
         etLatitude = findViewById(R.id.etLatitude);
         etLongitude = findViewById(R.id.etLongitude);
-        etAltitude = findViewById(R.id.etAltitude);
         etRadius = findViewById(R.id.etRadius);
         etSearchAddress = findViewById(R.id.etSearchAddress);
 
@@ -195,13 +193,11 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                         double lat = result.getData().getDoubleExtra("latitude", 0);
                         double lng = result.getData().getDoubleExtra("longitude", 0);
-                        double alt = result.getData().getDoubleExtra("altitude", 0);
                         double rad = result.getData().getDoubleExtra("radius", 500);
 
                         isUpdatingFromMap = true;
                         etLatitude.setText(String.format(Locale.getDefault(), "%.6f", lat));
                         etLongitude.setText(String.format(Locale.getDefault(), "%.6f", lng));
-                        etAltitude.setText(String.format(Locale.getDefault(), "%.6f", alt));
                         etRadius.setText(String.format(Locale.getDefault(), "%.0f", rad));
                         isUpdatingFromMap = false;
 
@@ -222,7 +218,7 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
 
         mMap.setOnMapClickListener(latLng -> {
             isUpdatingFromMap = true;
-            updateMarkerAndInputs(latLng, 0.0); // Altitude não disponível em cliques no mapa, usar 0.0
+            updateMarkerAndInputs(latLng);
             isUpdatingFromMap = false;
         });
 
@@ -236,10 +232,11 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
                     currentCircle.setCenter(marker.getPosition());
                 }
             }
+
             @Override
             public void onMarkerDragEnd(Marker marker) {
                 isUpdatingFromMap = true;
-                updateMarkerAndInputs(marker.getPosition(), 0.0); // Altitude não disponível em drags, usar 0.0
+                updateMarkerAndInputs(marker.getPosition());
                 isUpdatingFromMap = false;
             }
         });
@@ -249,24 +246,20 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
         try {
             double lat = Double.parseDouble(etLatitude.getText().toString());
             double lng = Double.parseDouble(etLongitude.getText().toString());
-            double altitude = Double.parseDouble(etAltitude.getText().toString()); // Considerar altitude nos inputs
             double radius = Double.parseDouble(etRadius.getText().toString());
 
             LatLng position = new LatLng(lat, lng);
             updateMarkerAndCircle(position, radius);
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
 
-            // Aqui, altitude é considerada ao ser parseada, mas como o mapa é 2D, ela é armazenada para uso posterior (ex: criação de Local)
-
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Coordenadas inválidas", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void updateMarkerAndInputs(LatLng latLng, double altitude) {
+    private void updateMarkerAndInputs(LatLng latLng) {
         etLatitude.setText(String.format(Locale.getDefault(), "%.6f", latLng.latitude));
         etLongitude.setText(String.format(Locale.getDefault(), "%.6f", latLng.longitude));
-        etAltitude.setText(String.format(Locale.getDefault(), "%.6f", altitude)); // Usar altitude passada
 
         try {
             double radius = Double.parseDouble(etRadius.getText().toString());
@@ -291,7 +284,6 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
                 .title("Local Selecionado")
                 .draggable(true));
 
-        // Raio em metros (2D), altitude não afeta o círculo no mapa, mas é considerada no modelo Local
         currentCircle = mMap.addCircle(new CircleOptions()
                 .center(position)
                 .radius(radius)
@@ -325,18 +317,16 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
                 isUpdatingFromMap = true;
                 etLatitude.setText(String.format(Locale.getDefault(), "%.6f", address.getLatitude()));
                 etLongitude.setText(String.format(Locale.getDefault(), "%.6f", address.getLongitude()));
-                etAltitude.setText("0.0"); // Altitude não disponível via Geocoder, usar 0.0
                 isUpdatingFromMap = false;
 
-                double radius = Double.parseDouble(etRadius.getText().toString());
-                updateMarkerAndCircle(location, radius);
+                updateMarkerAndCircle(location, Double.parseDouble(etRadius.getText().toString()));
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 16));
 
                 Toast.makeText(this, "Endereço encontrado!", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "Endereço não encontrado", Toast.LENGTH_SHORT).show();
             }
-        } catch (IOException | NumberFormatException e) {
+        } catch (IOException e) {
             Toast.makeText(this, "Erro ao buscar endereço", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
@@ -368,10 +358,9 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
                 .addOnSuccessListener(this, location -> {
                     if (location != null) {
                         LatLng myLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                        double altitude = location.getAltitude(); // Considerar altitude da localização real
 
                         isUpdatingFromMap = true;
-                        updateMarkerAndInputs(myLocation, altitude);
+                        updateMarkerAndInputs(myLocation);
                         isUpdatingFromMap = false;
 
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 16));
@@ -386,13 +375,11 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
         try {
             double lat = Double.parseDouble(etLatitude.getText().toString());
             double lng = Double.parseDouble(etLongitude.getText().toString());
-            double alt = Double.parseDouble(etAltitude.getText().toString()); // Incluir altitude
             double radius = Double.parseDouble(etRadius.getText().toString());
 
             Intent intent = new Intent(this, com.example.localizacaoloq.activities.FullscreenMap.class);
             intent.putExtra("latitude", lat);
             intent.putExtra("longitude", lng);
-            intent.putExtra("altitude", alt); // Passar altitude
             intent.putExtra("radius", radius);
             fullscreenMapLauncher.launch(intent);
 
@@ -418,31 +405,22 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
             try {
                 double lat = Double.parseDouble(etLatitude.getText().toString());
                 double lng = Double.parseDouble(etLongitude.getText().toString());
-                double altitude = Double.parseDouble(etAltitude.getText().toString()); // Considerar altitude na criação
                 double radius = Double.parseDouble(etRadius.getText().toString());
 
-                // Exemplo: Criar Local considerando altitude em todos os campos relevantes
-                // Local local = new Local(localName, lat, lng, altitude, radius);
-                // Aqui, altitude é incluída no modelo para cálculos futuros (ex: distâncias 3D se necessário)
 
-                Toast.makeText(this, "Local GPS criado com altitude: " + altitude, Toast.LENGTH_SHORT).show();
-                // Adicionar lógica de salvamento/persistência aqui
+
 
             } catch (NumberFormatException e) {
                 Toast.makeText(this, "Coordenadas inválidas", Toast.LENGTH_SHORT).show();
             }
         } else if (radioWifi.isChecked()) {
-            // Para WiFi, altitude pode ser opcional ou estimada como 0.0
-            double altitude = 0.0; // Ou parse de um campo específico se existir
 
-            // Exemplo: LocalWifi localWifi = new LocalWifi(localName, /* campos WiFi */, altitude);
-            Toast.makeText(this, "Local WiFi criado com altitude: " + altitude, Toast.LENGTH_SHORT).show();
-            // Adicionar lógica de salvamento/persistência aqui
         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
     }
 }
