@@ -5,14 +5,12 @@ import java.util.List;
 public class LocalGPS extends Local {
     private double latitude; // Corrigido de "latutude"
     private double longitude;
-    private double altitude;
     private double raio;
 
-    public LocalGPS(String nome, double latitude, double longitude, double altitude, double raio) {
+    public LocalGPS(String nome, double latitude, double longitude,double raio) {
         super(nome, "GPS");
         this.latitude = latitude;
         this.longitude = longitude;
-        this.altitude = altitude;
         this.raio = raio;
     }
 
@@ -32,15 +30,6 @@ public class LocalGPS extends Local {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
-
-    public double getAltitude() {
-        return altitude;
-    }
-
-    public void setAltitude(double altitude) {
-        this.altitude = altitude;
-    }
-
     public double getRaio() {
         return raio;
     }

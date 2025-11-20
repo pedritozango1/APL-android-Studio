@@ -13,64 +13,65 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.localizacaoloq.R;
+import com.example.localizacaoloq.Repository.LocalRepository;
 import com.example.localizacaoloq.model.Local;
 import com.example.localizacaoloq.model.LocalGPS;
 import com.example.localizacaoloq.model.LocalWifi;
-import com.example.localizacaoloq.model.LocalRepository;
 
 import java.util.List;
 
 public class AdapterLocal extends RecyclerView.Adapter<AdapterLocal.ViewHolder> {
 
     private List<Local> locais;
-    private LocalRepository localRepository;
-
-    public AdapterLocal() {
-        this.localRepository = LocalRepository.getInstance();
-        this.locais = localRepository.getLocais();
+    private OnLocalDeleteListener deleteListener;
+    public interface OnLocalDeleteListener {
+        void onLocalDeleted(Local local, int position);
     }
 
+    public AdapterLocal(List<Local> locais,OnLocalDeleteListener listener) {
+        this.locais = locais;
+        this.deleteListener = listener;
+    }
+    @Override
+    public int getItemCount() {
+        return locais.size();
+    }
+
+    public void updateLocais(List<Local> newLocais) {
+        this.locais = newLocais;
+        notifyDataSetChanged();
+    }
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_local, parent, false);
         return new ViewHolder(view);
     }
-
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Local local = locais.get(position);
         holder.bind(local);
 
-        // Evento de delete
         holder.btnDelete.setOnClickListener(v -> {
             new AlertDialog.Builder(v.getContext())
                     .setTitle("Confirmar Exclusão")
                     .setMessage("Deseja apagar o local '" + local.getNome() + "'?")
                     .setPositiveButton("Sim", (dialog, which) -> {
-                        // Remove do repositório
-                        localRepository.getLocais().remove(local); // Assume que getLocais() retorna a lista mutável; ajusta se necessário
-                        locais.remove(position);
-                        notifyItemRemoved(position);
-                        notifyItemRangeChanged(position, locais.size());
-                        // Atualiza contador na activity se houver callback
+                        if (deleteListener != null) {
+                            deleteListener.onLocalDeleted(local, holder.getAdapterPosition());
+                        }
                     })
                     .setNegativeButton("Não", null)
                     .show();
         });
-    }
 
-    @Override
-    public int getItemCount() {
-        return locais.size();
-    }
 
-    // Método para atualizar a lista (chama na activity após adicionar)
-    public void updateLocais(List<Local> newLocais) {
-        this.locais = newLocais;
-        notifyDataSetChanged();
     }
-
+    public void removeItem(int position) {
+        locais.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, locais.size());
+    }
     static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivIcon;
         TextView tvNome, tvTipo, tvDetalhes;

@@ -7,23 +7,24 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.localizacaoloq.R;
-import com.example.localizacaoloq.model.Atributo;
+import com.example.localizacaoloq.model.Perfil;
 
 import java.util.List;
 
 public class AtributoAdapter extends RecyclerView.Adapter<AtributoAdapter.ViewHolder> {
 
-    private List<Atributo> lista;
+    private List<Perfil> lista;
     private OnDeleteClickListener deleteListener;
 
     public interface OnDeleteClickListener {
-        void onDelete(int position);
+        void onDelete(Perfil perfil, int position);
     }
 
-    public AtributoAdapter(List<Atributo> lista, OnDeleteClickListener deleteListener) {
+    public AtributoAdapter(List<Perfil> lista, OnDeleteClickListener deleteListener) {
         this.lista = lista;
         this.deleteListener = deleteListener;
     }
@@ -38,20 +39,39 @@ public class AtributoAdapter extends RecyclerView.Adapter<AtributoAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Atributo atributo = lista.get(position);
+        Perfil atributo = lista.get(position);
 
-        holder.textKey.setText(atributo.getKey());
-        holder.textValue.setText(atributo.getValue());
+        holder.textKey.setText(atributo.getChave());
+        holder.textValue.setText(atributo.getValor());
 
         holder.btnDelete.setOnClickListener(v -> {
-            if (deleteListener != null)
-                deleteListener.onDelete(position);
+            new AlertDialog.Builder(v.getContext())
+                    .setTitle("Confirmar Exclusão")
+                    .setMessage("Deseja apagar o atributo '" + atributo.getChave() + "'?")
+                    .setPositiveButton("Sim", (dialog, which) -> {
+                        if (deleteListener != null) {
+                            deleteListener.onDelete(atributo, holder.getAdapterPosition());
+                        }
+                    })
+                    .setNegativeButton("Não", null)
+                    .show();
         });
     }
 
     @Override
     public int getItemCount() {
         return lista.size();
+    }
+
+    public void updatePerfis(List<Perfil> newPerfis) {
+        this.lista = newPerfis;
+        notifyDataSetChanged();
+    }
+
+    public void removeItem(int position) {
+        lista.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, lista.size());
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

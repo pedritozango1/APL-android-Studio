@@ -4,7 +4,7 @@ import com.example.localizacaoloq.Repository.UserRepository;
 
 public class Auth {
    private User user;
-   private String idSession;
+   private String sessionId;
    private  boolean ative=true;
 
     public boolean isAtive() {
@@ -16,17 +16,17 @@ public class Auth {
     }
 
     public  Auth(User utilizador, String idSesssion){
-       this.idSession=idSesssion;
+       this.sessionId=idSesssion;
        this.user=utilizador;
    }
 
     public String getIdSession() {
-        return idSession;
+        return sessionId;
     }
 
 
     public void setIdSession(String idSession) {
-        this.idSession = idSession;
+        this.sessionId = idSession;
     }
 
     public User getUtilizador() {

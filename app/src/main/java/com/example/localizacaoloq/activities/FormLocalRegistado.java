@@ -3,7 +3,6 @@ package com.example.localizacaoloq.activities;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.view.View;
@@ -18,6 +17,10 @@ import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 
 import com.example.localizacaoloq.R;
+import com.example.localizacaoloq.Repository.LocalRepository;
+import com.example.localizacaoloq.model.Local;
+import com.example.localizacaoloq.model.LocalGPS;
+import com.example.localizacaoloq.model.LocalWifi;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -31,7 +34,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.radiobutton.MaterialRadioButton;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -240,29 +243,88 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
                     }
                 });
     }
-
     private void createLocal() {
-        String name = etLocalName.getText().toString().trim();
 
+        String name = etLocalName.getText().toString().trim();
         if (name.isEmpty()) {
             Toast.makeText(this, "Insira o nome do local!", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // instância única do repo que chama o servidor
+        LocalRepository apiRepo =  LocalRepository.getInstance();
+
         if (radioGps.isChecked()) {
+
             try {
                 double lat = Double.parseDouble(etLatitude.getText().toString());
                 double lng = Double.parseDouble(etLongitude.getText().toString());
-                double radius = Double.parseDouble(etRadius.getText().toString());
+                double raio = Double.parseDouble(etRadius.getText().toString());
 
-                Toast.makeText(this, "Local GPS criado!", Toast.LENGTH_SHORT).show();
+                LocalGPS gps = new LocalGPS(name, lat, lng, raio);
+
+                new Thread(() -> {
+                    try {
+                        Local result = apiRepo.create(gps);
+
+                        runOnUiThread(() -> {
+                            if (result != null) {
+                                Toast.makeText(this,
+                                        "Local GPS criado com sucesso!",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+                                apiRepo.addLocal(gps);
+                                finish();
+                            } else {
+                                Toast.makeText(this,
+                                        "Erro: resposta nula do servidor!",
+                                        Toast.LENGTH_LONG
+                                ).show();
+                            }
+                        });
+                    } catch (Exception e) {
+                        // Captura qualquer erro durante a requisição
+                        e.printStackTrace(); // para ver no Logcat
+                        runOnUiThread(() -> Toast.makeText(
+                                this,
+                                "Erro ao comunicar com o servidor: " + e.getMessage(),
+                                Toast.LENGTH_LONG
+                        ).show());
+                    }
+                }).start();
+
 
             } catch (Exception e) {
                 Toast.makeText(this, "Coordenadas inválidas!", Toast.LENGTH_SHORT).show();
             }
 
         } else {
-            Toast.makeText(this, "Local WiFi criado!", Toast.LENGTH_SHORT).show();
+
+            List<String> listaSinais = new ArrayList<>();
+            listaSinais.add("SSID_EXEMPLO_1");
+            listaSinais.add("SSID_EXEMPLO_2");
+
+            LocalWifi wifi = new LocalWifi(name, listaSinais);
+
+            new Thread(() -> {
+                Local result = apiRepo.create(wifi);
+
+                runOnUiThread(() -> {
+                    if (result != null) {
+                        Toast.makeText(this,
+                                "Local WiFi criado com sucesso!",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                        apiRepo.addLocal(wifi);
+                        finish();
+                    } else {
+                        Toast.makeText(this,
+                                "Erro ao enviar para o servidor!",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
+                });
+            }).start();
         }
     }
 }

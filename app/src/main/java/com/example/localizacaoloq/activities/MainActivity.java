@@ -2,6 +2,7 @@ package com.example.localizacaoloq.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -35,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        SessionManager sessionManager=new SessionManager(this);
+        SessionManager sessionManager=new SessionManager(getApplicationContext());
         String id=sessionManager.getSessionId();
         if(!id.isEmpty()){
             new Thread(() -> {
@@ -72,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
                 new Thread(() -> {
                     Session auth = authRepository.login(utilizador);
                     runOnUiThread(() -> {
+
                         if (auth != null && auth.getSessionId() != null) {
                             // Salvar sessionId localmente
                             SessionManager sessionManager = new SessionManager(MainActivity.this);

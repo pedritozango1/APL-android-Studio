@@ -9,35 +9,29 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.localizacaoloq.R;
+import com.example.localizacaoloq.Repository.PerfilReposistory;
+import com.example.localizacaoloq.model.Perfil;
 import com.example.localizacaoloq.utils.NavBarHelper;
-import android.os.Bundle;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageButton;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import android.widget.Button;
+import android.widget.Toast;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.localizacaoloq.R;
 import com.example.localizacaoloq.adapter.AtributoAdapter;
-import com.example.localizacaoloq.model.Atributo;
-import com.example.localizacaoloq.utils.NavBarHelper;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FormPerfil extends AppCompatActivity {
 
-    private EditText inputChave, inputValor;
-    private ImageButton btnAdicionar;
+    private TextInputEditText inputChave, inputValor;
+    private PerfilReposistory repo;
+    private Button btnAdicionar;
     private RecyclerView recycler;
     private AtributoAdapter adapter;
-    private List<Atributo> atributos = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,35 +45,93 @@ public class FormPerfil extends AppCompatActivity {
             return insets;
         });
 
+        // Inicializar NavBarHelper
         NavBarHelper.setup(this);
 
-        inputChave = findViewById(R.id.editChave);
-        inputValor = findViewById(R.id.editValor);
-        btnAdicionar = findViewById(R.id.btnAddAtributo);
+        // Inicializar Repository
+        repo = PerfilReposistory.getInstance();
 
+        // Inicializar Views (IDs corretos do novo XML)
         recycler = findViewById(R.id.recyclerAtributos);
+        inputChave = findViewById(R.id.input_chave);
+        inputValor = findViewById(R.id.input_valor);
+        btnAdicionar = findViewById(R.id.btn_adicionar_atributo);
+
+        // Configurar Adapter
+        adapter = new AtributoAdapter(new ArrayList<>(), (perfil, position) -> deletarPerfil(perfil, position));
+
+        // Configurar RecyclerView
         recycler.setLayoutManager(new LinearLayoutManager(this));
-
-        adapter = new AtributoAdapter(atributos, position -> {
-            atributos.remove(position);
-            adapter.notifyItemRemoved(position);
-        });
-
         recycler.setAdapter(adapter);
 
+        // Configurar botão
         btnAdicionar.setOnClickListener(v -> adicionarAtributo());
+
+        // Carregar dados
+        carregarPerfis();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        carregarPerfis();
+    }
+
+    private void deletarPerfil(Perfil perfil, int position) {
+        new Thread(() -> {
+            boolean success = repo.delete(perfil.get_id());
+
+            runOnUiThread(() -> {
+                if (success) {
+                    adapter.removeItem(position);
+                    Toast.makeText(this, "Atributo deletado com sucesso!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Erro ao deletar atributo!", Toast.LENGTH_LONG).show();
+                }
+            });
+        }).start();
+    }
+
+    private void carregarPerfis() {
+        new Thread(() -> {
+            List<Perfil> lista = repo.findAll();
+
+            runOnUiThread(() -> {
+                if (lista != null && !lista.isEmpty()) {
+                    adapter.updatePerfis(lista);
+                    repo.setPerfis(lista);
+                } else {
+                    adapter.updatePerfis(repo.getPerfis());
+                }
+            });
+        }).start();
     }
 
     private void adicionarAtributo() {
         String key = inputChave.getText().toString().trim();
         String value = inputValor.getText().toString().trim();
 
-        if (key.isEmpty() || value.isEmpty()) return;
+        if (key.isEmpty() || value.isEmpty()) {
+            Toast.makeText(this, "Preencha chave e valor!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        atributos.add(new Atributo(key, value));
-        adapter.notifyItemInserted(atributos.size() - 1);
+        // Criar perfil e salvar no banco de dados
+        Perfil novoPerfil = new Perfil(key, value);
 
-        inputChave.setText("");
-        inputValor.setText("");
+        new Thread(() -> {
+            Perfil perfilCriado = repo.create(novoPerfil);
+
+            runOnUiThread(() -> {
+                if (perfilCriado != null) {
+                    inputChave.setText("");
+                    inputValor.setText("");
+                    carregarPerfis(); // Recarrega a lista
+                    Toast.makeText(this, "Atributo adicionado com sucesso!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "Erro ao adicionar atributo!", Toast.LENGTH_LONG).show();
+                }
+            });
+        }).start();
     }
 }

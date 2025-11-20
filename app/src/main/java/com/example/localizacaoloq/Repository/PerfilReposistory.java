@@ -1,10 +1,5 @@
 package com.example.localizacaoloq.Repository;
-
-import android.util.Log;
-
-import com.example.localizacaoloq.model.Local;
-import com.example.localizacaoloq.model.LocalGPS;
-import com.example.localizacaoloq.model.LocalWifi;
+import com.example.localizacaoloq.model.Perfil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -16,57 +11,49 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class
-LocalRepository extends ApiReposistory {
-    private static LocalRepository instance;
-    private final List<Local> locais = new ArrayList<>();
+public class PerfilReposistory extends ApiReposistory {
 
-    private LocalRepository() {}
+    private static PerfilReposistory instance;
+    private final List<Perfil> perfis = new ArrayList<>();
 
-    public static LocalRepository getInstance() {
+    private PerfilReposistory() {}
+
+    public static PerfilReposistory getInstance() {
         if (instance == null) {
-            instance = new LocalRepository();
+            instance = new PerfilReposistory();
         }
         return instance;
     }
 
-    public List<Local> getLocais() {
-        return locais;
-    }
-    public void addLocal(Local local) {
-        locais.add(local);
-    }
-    public void removeLocal(Local local) {
-        locais.remove(local);
+    public List<Perfil> getPerfis() {
+        return perfis;
     }
 
-    public void setLocais(List<Local> lista) {
-        locais.clear();
-        locais.addAll(lista);
+    public void addPerfil(Perfil p) {
+        perfis.add(p);
     }
-    public Local create(Local local) {
+
+    public void removePerfil(Perfil p) {
+        perfis.remove(p);
+    }
+
+    public void setPerfis(List<Perfil> lista) {
+        perfis.clear();
+        perfis.addAll(lista);
+    }
+
+    // ------------------- CREATE -------------------
+    public Perfil create(Perfil perfil) {
         try {
-            URL url = new URL(baseUrl + "/locais");
+            URL url = new URL(baseUrl + "/perfis");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             conn.setDoOutput(true);
 
             JSONObject json = new JSONObject();
-            json.put("nome", local.getNome());
-
-            if (local instanceof LocalGPS ) {
-                json.put("tipo", "GPS");
-                LocalGPS gps = (LocalGPS) local;
-                json.put("latitude", gps.getLatitude());
-                json.put("longitude", gps.getLongitude());
-                json.put("raio", gps.getRaio());
-            } else if (local instanceof LocalWifi) {
-                json.put("tipo", "WIFI");
-                LocalWifi wifi = (LocalWifi) local;
-                JSONArray sinais = new JSONArray(wifi.getSinal());
-                json.put("sinal", sinais);
-            }
+            json.put("valor", perfil.getValor());
+            json.put("chave", perfil.getChave());
 
             OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
             writer.write(json.toString());
@@ -74,129 +61,144 @@ LocalRepository extends ApiReposistory {
             writer.close();
 
             int code = conn.getResponseCode();
+
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(code >= 200 && code < 300 ? conn.getInputStream() : conn.getErrorStream())
             );
 
             StringBuilder response = new StringBuilder();
             String line;
+
             while ((line = reader.readLine()) != null) response.append(line);
 
             reader.close();
             conn.disconnect();
 
-            JSONObject resJson = new JSONObject(response.toString());
-            // Retornar objeto Local correto
-            return parseLocal(resJson);
+            return parsePerfil(new JSONObject(response.toString()));
 
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
-    public List<Local> findAll() {
+
+    // ------------------- FIND ALL -------------------
+    public List<Perfil> findAll() {
         try {
-            URL url = new URL(baseUrl + "/locais");
+            URL url = new URL(baseUrl + "/perfis");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
 
             int code = conn.getResponseCode();
+
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(code >= 200 && code < 300 ? conn.getInputStream() : conn.getErrorStream())
             );
 
             StringBuilder response = new StringBuilder();
             String line;
+
             while ((line = reader.readLine()) != null) response.append(line);
 
             reader.close();
             conn.disconnect();
 
             JSONArray arr = new JSONArray(response.toString());
-            List<Local> locais = new ArrayList<>();
+            List<Perfil> lista = new ArrayList<>();
+
             for (int i = 0; i < arr.length(); i++) {
-                JSONObject obj = arr.getJSONObject(i);
-                Log.d("API_JSON_OBJ", obj.toString());
-                locais.add(parseLocal(obj));
+                lista.add(parsePerfil(arr.getJSONObject(i)));
             }
-            return locais;
+
+            return lista;
 
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
         }
     }
-    public Local findById(String id) {
+
+    // ------------------- FIND BY ID -------------------
+    public Perfil findById(String id) {
         try {
-            URL url = new URL(baseUrl + "/locais/" + id);
+            URL url = new URL(baseUrl + "/perfis/" + id);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
 
             int code = conn.getResponseCode();
+
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(code >= 200 && code < 300 ? conn.getInputStream() : conn.getErrorStream())
             );
 
             StringBuilder response = new StringBuilder();
             String line;
+
             while ((line = reader.readLine()) != null) response.append(line);
 
             reader.close();
             conn.disconnect();
 
-            JSONObject obj = new JSONObject(response.toString());
-            return parseLocal(obj);
+            return parsePerfil(new JSONObject(response.toString()));
 
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
-    public List<Local> searchByName(String query) {
-        try {
-            String queryParam = "?nome=" + query;
 
-            URL url = new URL(baseUrl + "/locais/search/by-name" + queryParam);
+    // ------------------- UPDATE -------------------
+    public Perfil update(String id, Perfil perfil) {
+        try {
+            URL url = new URL(baseUrl + "/perfis/" + id);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("Accept", "application/json");
+            conn.setRequestMethod("PUT");
+            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            conn.setDoOutput(true);
+
+            JSONObject json = new JSONObject();
+            json.put("valor", perfil.getValor());
+            json.put("chave", perfil.getChave());
+
+            OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
+            writer.write(json.toString());
+            writer.flush();
+            writer.close();
 
             int code = conn.getResponseCode();
+
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(code >= 200 && code < 300 ? conn.getInputStream() : conn.getErrorStream())
             );
 
             StringBuilder response = new StringBuilder();
             String line;
+
             while ((line = reader.readLine()) != null) response.append(line);
 
             reader.close();
             conn.disconnect();
 
-            JSONArray arr = new JSONArray(response.toString());
-            List<Local> locais = new ArrayList<>();
-            for (int i = 0; i < arr.length(); i++) {
-                locais.add(parseLocal(arr.getJSONObject(i)));
-            }
-            return locais;
+            return parsePerfil(new JSONObject(response.toString()));
 
         } catch (Exception e) {
             e.printStackTrace();
-            return new ArrayList<>();
+            return null;
         }
     }
+
+    // ------------------- DELETE -------------------
     public boolean delete(String id) {
         try {
-            URL url = new URL(baseUrl + "/locais/" + id);
+            URL url = new URL(baseUrl + "/perfis/" + id);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("DELETE");
             conn.setRequestProperty("Accept", "application/json");
 
             int code = conn.getResponseCode();
 
-            // 200 ou 204 = sucesso
             return code >= 200 && code < 300;
 
         } catch (Exception e) {
@@ -204,32 +206,56 @@ LocalRepository extends ApiReposistory {
             return false;
         }
     }
-    private Local parseLocal(JSONObject obj) {
-        try {
-            String id = obj.getString("_id");
-            String tipo = obj.optString("tipo", "");
-            String nome = obj.optString("nome", "Desconhecido");
 
-            if ("GPS".equalsIgnoreCase(tipo)) {
-                double lat = obj.optDouble("latitude", 0);
-                double lon = obj.optDouble("longitude", 0);
-                double raio = obj.optDouble("raio", 0);
-                LocalGPS lgps=new LocalGPS(nome, lat, lon, raio);
-                lgps.set_id(id);
-                return lgps;
-            } else if ("WIFI".equalsIgnoreCase(tipo)) {
-                List<String> sinais = new ArrayList<>();
-                JSONArray arr = obj.optJSONArray("sinal");
-                if (arr != null) {
-                    for (int i = 0; i < arr.length(); i++) sinais.add(arr.getString(i));
-                }
-                LocalWifi lsinal=new LocalWifi(nome, sinais);
-                lsinal.set_id(id);
-                return lsinal;
+    // ------------------- SEARCH BY VALOR -------------------
+    public List<Perfil> searchByValor(String valor) {
+        try {
+            URL url = new URL(baseUrl + "/perfis/search/by-valor?q=" + valor);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("Accept", "application/json");
+
+            int code = conn.getResponseCode();
+
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(code >= 200 && code < 300 ? conn.getInputStream() : conn.getErrorStream())
+            );
+
+            StringBuilder response = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) response.append(line);
+
+            reader.close();
+            conn.disconnect();
+
+            JSONArray arr = new JSONArray(response.toString());
+            List<Perfil> lista = new ArrayList<>();
+
+            for (int i = 0; i < arr.length(); i++) {
+                lista.add(parsePerfil(arr.getJSONObject(i)));
             }
+
+            return lista;
+
         } catch (Exception e) {
             e.printStackTrace();
+            return new ArrayList<>();
         }
-        return null;
+    }
+
+    // ------------------- PARSER -------------------
+    private Perfil parsePerfil(JSONObject obj) {
+        try {
+            Perfil p = new Perfil();
+            p.set_id(obj.getString("_id"));
+            p.setValor(obj.optString("valor", ""));
+            p.setChave(obj.optString("chave", ""));
+            return p;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
+

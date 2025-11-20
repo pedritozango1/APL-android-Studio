@@ -22,9 +22,6 @@
             android:name=".activities.FormLocalRegistado"
             android:exported="false" />
         <activity
-            android:name=".activities.FormRegistarLocal"
-            android:exported="false" />
-        <activity
             android:name=".activities.FullscreenMap"
             android:exported="false" />
         <activity
@@ -40,13 +37,7 @@
             android:name=".activities.FormAviso"
             android:exported="false" />
         <activity
-            android:name=".activities.FromLocalRegistado"
-            android:exported="false" />
-        <activity
             android:name=".activities.LocalForm"
-            android:exported="false" />
-        <activity
-            android:name=".utils.Localdb"
             android:exported="false" />
         <activity
             android:name=".activities.FormHome"
