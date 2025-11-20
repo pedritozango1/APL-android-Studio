@@ -13,20 +13,26 @@ import com.example.localizacaoloq.activities.LocalForm;
 import com.example.localizacaoloq.activities.FormAviso;
 import com.example.localizacaoloq.R;
 import com.example.localizacaoloq.activities.FormPerfil;
+import com.example.localizacaoloq.activities.MeusAnuncios;
 
 public class NavBarHelper {
-    private static final int ACTIVE_COLOR = Color.RED; // Ou defina como Color.parseColor("#F44336") para primary_red
+
+    private static final int ACTIVE_COLOR = Color.RED;
     private static final int INACTIVE_COLOR = Color.parseColor("#666666");
+
     public static void setup(final Activity activity) {
+
         LinearLayout navHome = activity.findViewById(R.id.nav_home);
         LinearLayout navLocais = activity.findViewById(R.id.nav_locais);
         LinearLayout navAvisos = activity.findViewById(R.id.nav_avisos);
         LinearLayout navPerfil = activity.findViewById(R.id.nav_perfil);
+        LinearLayout navMeusAnuncios = activity.findViewById(R.id.nav_meus_anuncios);
 
         navHome.setOnClickListener(v -> open(activity, FormHome.class));
         navLocais.setOnClickListener(v -> open(activity, LocalForm.class));
         navAvisos.setOnClickListener(v -> open(activity, FormAviso.class));
         navPerfil.setOnClickListener(v -> open(activity, FormPerfil.class));
+        navMeusAnuncios.setOnClickListener(v -> open(activity, MeusAnuncios.class));
 
         resetAll(activity);
         highlightCurrent(activity);
@@ -36,10 +42,11 @@ public class NavBarHelper {
         if (!current.getClass().equals(target)) {
             Intent intent = new Intent(current, target);
             current.startActivity(intent);
-            current.overridePendingTransition(0, 0); // sem animação
+            current.overridePendingTransition(0, 0);
             current.finish();
         }
     }
+
     private static void resetAll(Activity activity) {
         // Resetar Home
         setNavItemColors(activity, R.id.nav_home_icon, R.id.nav_home_text, INACTIVE_COLOR);
@@ -49,18 +56,28 @@ public class NavBarHelper {
         setNavItemColors(activity, R.id.nav_avisos_icon, R.id.nav_avisos_text, INACTIVE_COLOR);
         // Resetar Perfil
         setNavItemColors(activity, R.id.nav_perfil_icon, R.id.nav_perfil_text, INACTIVE_COLOR);
+        // Resetar Meus Anúncios  ✅ ADICIONADO
+        setNavItemColors(activity, R.id.nav_meus_anuncios_icon, R.id.nav_meus_anuncios_text, INACTIVE_COLOR);
     }
 
     private static void highlightCurrent(Activity activity) {
         Class<?> currentClass = activity.getClass();
+
         if (currentClass.equals(FormHome.class)) {
             setNavItemColors(activity, R.id.nav_home_icon, R.id.nav_home_text, ACTIVE_COLOR);
+
         } else if (currentClass.equals(LocalForm.class)) {
             setNavItemColors(activity, R.id.nav_locais_icon, R.id.nav_locais_text, ACTIVE_COLOR);
+
         } else if (currentClass.equals(FormAviso.class)) {
             setNavItemColors(activity, R.id.nav_avisos_icon, R.id.nav_avisos_text, ACTIVE_COLOR);
+
         } else if (currentClass.equals(FormPerfil.class)) {
             setNavItemColors(activity, R.id.nav_perfil_icon, R.id.nav_perfil_text, ACTIVE_COLOR);
+
+        } else if (currentClass.equals(MeusAnuncios.class)) {
+            // Destaque Meus Anúncios  ✅ ADICIONADO
+            setNavItemColors(activity, R.id.nav_meus_anuncios_icon, R.id.nav_meus_anuncios_text, ACTIVE_COLOR);
         }
     }
 

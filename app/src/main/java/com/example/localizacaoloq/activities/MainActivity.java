@@ -36,17 +36,21 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        SessionManager sessionManager=new SessionManager(getApplicationContext());
-        String id=sessionManager.getSessionId();
-        if(!id.isEmpty()){
+        SessionManager sessionManager = new SessionManager(getApplicationContext());
+        String id = sessionManager.getSessionId();
+
+        if (id != null && !id.isEmpty()) {
             new Thread(() -> {
                 AuthRepository authrep = new AuthRepository();
                 Session session = authrep.pegarIdSessao(id);
+
                 if (session != null && session.isActive()) {
-                    runOnUiThread(() -> startHome());
+                    runOnUiThread(this::startHome);
                 }
             }).start();
         }
+
+
         btnCriar=findViewById(R.id.btnConta);
         btnLogar=findViewById(R.id.btnLoginSistema);
 

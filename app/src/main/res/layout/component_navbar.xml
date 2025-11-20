@@ -23,7 +23,7 @@
             android:id="@+id/nav_home_icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@android:drawable/ic_menu_view"
+            android:src="@drawable/ic_home"
             app:tint="@color/primary_red"/>
 
         <TextView
@@ -48,7 +48,7 @@
             android:id="@+id/nav_locais_icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@android:drawable/ic_menu_mapmode"
+            android:src="@drawable/ic_location"
             app:tint="#666666" />
 
         <TextView
@@ -73,7 +73,7 @@
             android:id="@+id/nav_avisos_icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@android:drawable/ic_menu_info_details"
+            android:src="@drawable/ic_notifications"
             app:tint="#666666"/>
 
         <TextView
@@ -81,6 +81,31 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Avisos"
+            android:textSize="12sp"
+            android:textColor="#666666"/>
+    </LinearLayout>
+
+    <!-- NOVO ITEM: Meus Anúncios -->
+    <LinearLayout
+        android:id="@+id/nav_meus_anuncios"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/nav_meus_anuncios_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_menu_mylocation"
+            app:tint="#666666"/>
+
+        <TextView
+            android:id="@+id/nav_meus_anuncios_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Meus Anúncios"
             android:textSize="12sp"
             android:textColor="#666666"/>
     </LinearLayout>
@@ -98,7 +123,7 @@
             android:id="@+id/nav_perfil_icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@android:drawable/ic_menu_myplaces"
+            android:src="@drawable/ic_person"
             app:tint="#666666"/>
 
         <TextView

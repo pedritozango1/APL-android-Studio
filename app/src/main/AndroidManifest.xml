@@ -19,6 +19,9 @@
         android:theme="@style/Theme.LocalizacaoLoq"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".activities.MeusAnuncios"
+            android:exported="false" />
+        <activity
             android:name=".activities.FormLocalRegistado"
             android:exported="false" />
         <activity
