@@ -1,376 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    tools:context=".activities.FormPerfil">
 
-    <!-- HEADER Simples para Perfil -->
-    <LinearLayout
-        android:id="@+id/header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:gravity="center_vertical"
-        android:background="#FFFFFF"
-        app:layout_constraintTop_toTopOf="parent">
-        <TextView
-            android:id="@+id/title_perfil"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Perfil"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:gravity="left" />
-        <View
-            android:layout_width="40dp"
-            android:layout_height="40dp" />
-    </LinearLayout>
-
-    <!-- ScrollView para conteúdo rolável -->
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/header"
-        app:layout_constraintBottom_toTopOf="@id/bottom_container"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <!-- CARD Perfil do Usuário -->
-            <LinearLayout
-                android:id="@+id/card_perfil"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_card_white"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <!-- Avatar Circular -->
-                    <ImageView
-                        android:id="@+id/avatar"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:src="@android:drawable/ic_menu_myplaces"
-                        android:background="@drawable/circle_avatar_bg"
-                        android:scaleType="centerInside"
-                        android:layout_marginEnd="12dp"
-                        android:contentDescription="Avatar do usuário" />
-
-                    <!-- Infos do Perfil -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/perfil_initials"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="ef"
-                            android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/black" />
-
-                        <TextView
-                            android:id="@+id/perfil_id"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="ID: 176251017457"
-                            android:textSize="14sp"
-                            android:textColor="@color/muted_text"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- SEÇÃO Atributos de Perfil -->
-            <TextView
-                android:id="@+id/titulo_atributos"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Atributos de Perfil"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="20dp"
-                app:layout_constraintTop_toBottomOf="@id/card_perfil"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <TextView
-                android:id="@+id/descricao_atributos"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Pares chave-valor usados para segmentação de anúncios"
-                android:textSize="14sp"
-                android:textColor="@color/muted_text"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="4dp"
-                app:layout_constraintTop_toBottomOf="@id/titulo_atributos"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <!-- INPUT Chave (Key) -->
-            <TextView
-                android:id="@+id/label_chave"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="20dp"
-                android:text="Chave"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/descricao_atributos" />
-
-            <TextView
-                android:id="@+id/exemplo_chave"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="ex: course, year, interest"
-                android:textSize="12sp"
-                android:textColor="@color/muted_text"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="4dp"
-                app:layout_constraintTop_toBottomOf="@id/label_chave"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/input_chave_layout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="8dp"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                app:boxStrokeColor="@color/muted_text"
-                app:hintTextColor="@color/muted_text"
-                app:layout_constraintTop_toBottomOf="@id/exemplo_chave"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/input_chave"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Digite a chave"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- INPUT Valor (Value) -->
-            <TextView
-                android:id="@+id/label_valor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Valor"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                app:layout_constraintTop_toBottomOf="@id/input_chave_layout"
-                app:layout_constraintStart_toStartOf="parent" />
-
-            <TextView
-                android:id="@+id/exemplo_valor"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="ex: CS, 3, sports"
-                android:textSize="12sp"
-                android:textColor="@color/muted_text"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="4dp"
-                app:layout_constraintTop_toBottomOf="@id/label_valor"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/input_valor_layout"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="8dp"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                app:boxStrokeColor="@color/muted_text"
-                app:hintTextColor="@color/muted_text"
-                app:layout_constraintTop_toBottomOf="@id/exemplo_valor"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/input_valor"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Digite o valor"
-                    android:textSize="14sp" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- BOTÃO Adicionar Atributo -->
-            <Button
-                android:id="@+id/btn_adicionar_atributo"
-                android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:text="+ Adicionar Atributo"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"
-                android:background="@drawable/bg_button_pink"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="20dp"
-                app:layout_constraintTop_toBottomOf="@id/input_valor_layout"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-            <!-- Atributo: course -->
-            <LinearLayout
-                android:id="@+id/atributo_course"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="12dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/bg_outline_light"
-                app:layout_constraintTop_toBottomOf="@id/btn_adicionar_atributo"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <TextView
-                    android:id="@+id/label_course"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="course"
-                    android:textSize="12sp"
-                    android:textColor="@color/muted_text"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/value_course"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="CS"
-                    android:textSize="14sp"
-                    android:textColor="@color/black"
-                    android:layout_weight="1" />
-
-                <ImageButton
-                    android:id="@+id/delete_course"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_delete"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    app:tint="@color/muted_text"
-                    android:contentDescription="Remover atributo" />
-            </LinearLayout>
-
-            <!-- Atributo: year -->
-            <LinearLayout
-                android:id="@+id/atributo_year"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="12dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_outline_light"
-                app:layout_constraintTop_toBottomOf="@id/atributo_course"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <TextView
-                    android:id="@+id/label_year"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="year"
-                    android:textSize="12sp"
-                    android:textColor="@color/muted_text"
-                    android:layout_marginEnd="8dp" />
-
-                <TextView
-                    android:id="@+id/value_year"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="3"
-                    android:textSize="14sp"
-                    android:textColor="@color/black"
-                    android:layout_weight="1" />
-
-                <ImageButton
-                    android:id="@+id/delete_year"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@android:drawable/ic_menu_delete"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    app:tint="@color/muted_text"
-                    android:contentDescription="Remover atributo" />
-            </LinearLayout>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
-
-    <!-- Container fixo no bottom com FAB e NavBar -->
-    <LinearLayout
-        android:id="@+id/bottom_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:fillViewport="true"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-        <!-- FAB Flutuante na Inferior Direita -->
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
 
-            <include
-                android:id="@+id/fab_container"
-                layout="@layout/component_fab"
+        <LinearLayout
+            android:id="@+id/containerMain"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- ========== CAMPOS DO PERFIL ========== -->
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="end|bottom"
-                android:layout_marginEnd="24dp"
-                android:layout_marginBottom="16dp" />
+                android:text="Nome"
+                android:textStyle="bold"
+                android:paddingTop="8dp"/>
 
-        </FrameLayout>
+            <EditText
+                android:id="@+id/editNome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Digite o nome" />
 
-        <!-- Navbar abaixo -->
-        <include
-            android:id="@+id/navBar"
-            layout="@layout/component_navbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Email"
+                android:textStyle="bold"
+                android:paddingTop="8dp"/>
+
+            <EditText
+                android:id="@+id/editEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:hint="Digite o email" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Telefone"
+                android:textStyle="bold"
+                android:paddingTop="8dp"/>
+
+            <EditText
+                android:id="@+id/editTelefone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="phone"
+                android:hint="Digite o telefone" />
+
+            <!-- ========== ATRIBUTOS DINÂMICOS ========== -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Adicionar Atributos"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:paddingTop="16dp" />
+
+            <LinearLayout
+                android:id="@+id/containerAddAtributo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingVertical="8dp">
+
+                <EditText
+                    android:id="@+id/editChave"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Chave (ex: curso)" />
+
+                <EditText
+                    android:id="@+id/editValor"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Valor (ex: Informática)"
+                    android:layout_marginStart="8dp" />
+
+                <ImageButton
+                    android:id="@+id/btnAddAtributo"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@android:color/transparent"
+                    android:src="@android:drawable/ic_input_add" />
+            </LinearLayout>
+
+            <!-- LISTA DE ATRIBUTOS -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerAtributos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="8dp" />
+
+            <!-- Botão salvar -->
+            <Button
+                android:id="@+id/btnSalvar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Salvar Perfil"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="#2196F3" />
+
+        </LinearLayout>
+    </ScrollView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
