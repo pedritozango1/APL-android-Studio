@@ -13,6 +13,7 @@ import com.example.localizacaoloq.utils.NavBarHelper;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,7 +34,7 @@ import java.util.List;
 public class FormPerfil extends AppCompatActivity {
 
     private EditText inputChave, inputValor;
-    private Button btnAdicionar;
+    private ImageButton btnAdicionar;
     private RecyclerView recycler;
     private AtributoAdapter adapter;
     private List<Atributo> atributos = new ArrayList<>();
@@ -52,9 +53,9 @@ public class FormPerfil extends AppCompatActivity {
 
         NavBarHelper.setup(this);
 
-        inputChave = findViewById(R.id.input_chave);
-        inputValor = findViewById(R.id.input_valor);
-        btnAdicionar = findViewById(R.id.btn_adicionar_atributo);
+        inputChave = findViewById(R.id.editChave);
+        inputValor = findViewById(R.id.editValor);
+        btnAdicionar = findViewById(R.id.btnAddAtributo);
 
         recycler = findViewById(R.id.recyclerAtributos);
         recycler.setLayoutManager(new LinearLayoutManager(this));
