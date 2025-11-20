@@ -11,10 +11,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.localizacaoloq.R;
+import com.example.localizacaoloq.adapter.AnuncioAdapter;
+import com.example.localizacaoloq.model.Anuncio;
 import com.example.localizacaoloq.utils.NavBarHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FormHome extends AppCompatActivity {
     private ImageView nav_locais_icon;
@@ -45,6 +52,21 @@ public class FormHome extends AppCompatActivity {
         } else {
             Log.e("FormHome", "FAB não encontrado!");
         }
+        setupRecycler();
+    }
+
+    private void setupRecycler() {
+        RecyclerView recycler = findViewById(R.id.recyclerAnuncios);
+        recycler.setLayoutManager(new LinearLayoutManager(this));
+
+        // Lista de anúncios (depois tu puxa da API)
+        List<Anuncio> lista = new ArrayList<>();
+        lista.add(new Anuncio("Palestra sobre IA", "Amanhã às 14h no auditório.", "Campus Central", "01/11/2025", "Central"));
+        lista.add(new Anuncio("Workshop Android", "Aprenda RecyclerView!", "Bloco B", "03/11/2025", "Tech"));
+        lista.add(new Anuncio("Feira de Ciências", "Projetos expostos!", "Ginásio", "10/11/2025", "Evento"));
+
+        AnuncioAdapter adapter = new AnuncioAdapter(lista);
+        recycler.setAdapter(adapter);
     }
     private  void startFOrmLocais(){
         Intent formLocal=new Intent(this, LocalForm.class);
