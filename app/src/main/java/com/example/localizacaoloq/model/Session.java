@@ -1,20 +1,20 @@
 package com.example.localizacaoloq.model;
 
 public class Session {
-    private String user;
+    private User user;
     private String sessionId;
     private boolean active;
     public Session() {
     }
-    public Session(String user, String sessionId, boolean active) {
+    public Session(User user, String sessionId, boolean active) {
         this.user = user;
         this.sessionId = sessionId;
         this.active = active;
     }
-    public String getUser() {
+    public User getUser() {
         return user;
     }
-    public void setUser(String user) {
+    public void setUser(User user) {
         this.user = user;
     }
     public String getSessionId() {

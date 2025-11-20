@@ -9,11 +9,15 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.localizacaoloq.R;
+import com.example.localizacaoloq.Repository.AuthRepository;
 import com.example.localizacaoloq.Repository.PerfilReposistory;
 import com.example.localizacaoloq.model.Perfil;
+import com.example.localizacaoloq.model.Session;
+import com.example.localizacaoloq.model.SessionManager;
 import com.example.localizacaoloq.utils.NavBarHelper;
 
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -44,7 +48,32 @@ public class FormPerfil extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        SessionManager sessionManager=new SessionManager(getApplicationContext());
+        String id=sessionManager.getSessionId();
+        Toast.makeText(this,"",Toast.LENGTH_SHORT).show();
+        if(!id.isEmpty()){
+            new Thread(() -> {
+                AuthRepository authrep = new AuthRepository();
+                Session session = authrep.pegarIdSessao(id);
+                if (session != null && session.isActive()) {
+                    runOnUiThread(() -> {
+                        TextView perfilInitials = findViewById(R.id.perfil_initials);
+                        TextView perfilId = findViewById(R.id.perfil_id);
 
+                        if (session.getUser() != null) {
+                            // Pega as iniciais do username (primeiras 2 letras)
+                            String username = session.getUser().getUsername();
+                            String initials = username.length() >= 2 ?
+                                    username.substring(0, 2).toUpperCase() :
+                                    username.toUpperCase();
+
+                            perfilInitials.setText(initials);
+                            perfilId.setText("ID: " + session.getUser().get_id());
+                        }
+                    });
+                }
+            }).start();
+        }
         // Inicializar NavBarHelper
         NavBarHelper.setup(this);
 

@@ -1,5 +1,7 @@
 package com.example.localizacaoloq.Repository;
 
+import android.util.Log;
+
 import com.example.localizacaoloq.model.Auth;
 import com.example.localizacaoloq.model.Session;
 import com.example.localizacaoloq.model.User;
@@ -51,15 +53,21 @@ public class AuthRepository extends ApiReposistory {
             if (responseCode >= 200 && responseCode < 300) {
                  JSONObject jsonResponse = new JSONObject(response.toString());
 
-                String username = jsonResponse.getJSONObject("user").getString("username"); // ou id se quiser
+                JSONObject userJson = jsonResponse.getJSONObject("user");
+
+                User userObj = new User(
+                        userJson.getString("username"),
+                        userJson.optString("password") // opcional caso não venha
+                );
+                userObj.set_id(userJson.getString("_id"));
+
                 String sessionId = jsonResponse.getString("sessionId");
                 boolean active = jsonResponse.getBoolean("active");
 
                 Session session = new Session();
-                session.setUser(username);
+                session.setUser(userObj);
                 session.setSessionId(sessionId);
                 session.setActive(active);
-
                 return session;
             } else {
                 throw new Exception("Erro (" + responseCode + "): " + response.toString());
@@ -111,9 +119,10 @@ public class AuthRepository extends ApiReposistory {
             return "Erro: " + e.getMessage();
         }
     }
+    private static final String TAG = "SessionAPI";
+
     public Session pegarIdSessao(String idSessao) {
         try {
-            // URL do endpoint NestJS
             URL url = new URL(baseUrl + "/auth/pegarSessao/" + idSessao);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
@@ -138,38 +147,61 @@ public class AuthRepository extends ApiReposistory {
             conn.disconnect();
 
             if (responseCode >= 200 && responseCode < 300) {
-                // A API retorna um objeto JSON do tipo Session
-                JSONObject jsonResponse = new JSONObject(response.toString());
+                // DEBUG: Resposta completa
+                Log.d(TAG, "Resposta completa: " + response.toString());
 
-                // Se o campo "user" for um objeto, podemos extrair o ID ou nome
-                String user = "";
+                JSONObject jsonResponse = new JSONObject(response.toString());
+                User userObj = null;
+
+                // DEBUG: Verificar campo "user"
                 if (jsonResponse.has("user")) {
+                    Log.d(TAG, "Campo 'user' encontrado");
                     Object userField = jsonResponse.get("user");
-                    if (userField instanceof JSONObject) {
-                        user = ((JSONObject) userField).getString("username");
+                    Log.d(TAG, "Tipo do campo 'user': " + userField.getClass().getName());
+                    Log.d(TAG, "Conteúdo do campo 'user': " + userField.toString());
+
+                    // Verificar se não é null e se é JSONObject
+                    if (userField != null && userField != JSONObject.NULL && userField instanceof JSONObject) {
+                        JSONObject userJson = (JSONObject) userField;
+
+                        Log.d(TAG, "Username: " + userJson.optString("username", "N/A"));
+                        Log.d(TAG, "User ID: " + userJson.optString("_id", "N/A"));
+
+                        userObj = new User(
+                                userJson.optString("username", ""),
+                                userJson.optString("password", "")
+                        );
+                        userObj.set_id(userJson.optString("_id", ""));
+
+                        Log.d(TAG, "User criado com sucesso: " + userObj.get_id());
                     } else {
-                        user = jsonResponse.getString("user");
+                        Log.w(TAG, "Campo 'user' é null ou não é JSONObject!");
                     }
+                } else {
+                    Log.w(TAG, "Campo 'user' NÃO existe no JSON!");
                 }
 
                 String sessionId = jsonResponse.optString("sessionId", "");
                 boolean active = jsonResponse.optBoolean("active", false);
 
+                Log.d(TAG, "SessionId: " + sessionId + ", Active: " + active);
+
                 Session session = new Session();
-                session.setUser(user);
+                session.setUser(userObj);
                 session.setSessionId(sessionId);
                 session.setActive(active);
 
                 return session;
+
             } else {
+                Log.e(TAG, "Erro HTTP: " + responseCode + " - " + response.toString());
                 throw new Exception("Erro (" + responseCode + "): " + response.toString());
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Exceção ao pegar sessão: " + e.getMessage(), e);
             return null;
         }
     }
-
 }
 

@@ -60,10 +60,10 @@ public class FormHome extends AppCompatActivity {
         recycler.setLayoutManager(new LinearLayoutManager(this));
 
         // Lista de anúncios (depois tu puxa da API)
-        List<Anuncio> lista = new ArrayList<>();
-        lista.add(new Anuncio("Palestra sobre IA", "Amanhã às 14h no auditório.", "Campus Central", "01/11/2025", "Central"));
+      List<Anuncio> lista = new ArrayList<>(); /*
+        /*lista.add(new Anuncio("Palestra sobre IA", "Amanhã às 14h no auditório.", "Campus Central", "01/11/2025", "Central"));
         lista.add(new Anuncio("Workshop Android", "Aprenda RecyclerView!", "Bloco B", "03/11/2025", "Tech"));
-        lista.add(new Anuncio("Feira de Ciências", "Projetos expostos!", "Ginásio", "10/11/2025", "Evento"));
+        lista.add(new Anuncio("Feira de Ciências", "Projetos expostos!", "Ginásio", "10/11/2025", "Evento"));*/
 
         AnuncioAdapter adapter = new AnuncioAdapter(lista);
         recycler.setAdapter(adapter);

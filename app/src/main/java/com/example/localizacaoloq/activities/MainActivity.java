@@ -38,7 +38,8 @@ public class MainActivity extends AppCompatActivity {
         });
         SessionManager sessionManager=new SessionManager(getApplicationContext());
         String id=sessionManager.getSessionId();
-        if(!id.isEmpty()){
+        Toast.makeText(this,"",Toast.LENGTH_SHORT).show();
+       if(!id.isEmpty()){
             new Thread(() -> {
                 AuthRepository authrep = new AuthRepository();
                 Session session = authrep.pegarIdSessao(id);

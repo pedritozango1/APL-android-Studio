@@ -43,11 +43,11 @@ public class AnuncioAdapter extends RecyclerView.Adapter<AnuncioAdapter.ViewHold
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Anuncio anuncio = anuncios.get(position);
-        holder.titulo.setText(anuncio.titulo);
+        /*holder.titulo.setText(anuncio.titulo);
         holder.desc.setText(anuncio.descricao);
         holder.local.setText(anuncio.local);
         holder.data.setText(anuncio.data);
-        holder.tag.setText(anuncio.tag);
+        holder.tag.setText(anuncio.tag);*/
     }
 
     @Override
