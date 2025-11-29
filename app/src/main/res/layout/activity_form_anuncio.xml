@@ -264,14 +264,43 @@
                         android:textSize="14sp" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Título da seção -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Restrições"
+                    android:text="Restrições Selecionadas"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="@color/black"
                     android:layout_marginBottom="8dp" />
+
+                <!-- RecyclerView ou ScrollView para lista de perfis selecionados -->
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxHeight="150dp"
+                    android:layout_marginBottom="12dp">
+
+                    <LinearLayout
+                        android:id="@+id/container_perfis_selecionados"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- Mensagem quando não há perfis -->
+                        <TextView
+                            android:id="@+id/txt_sem_perfis"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Nenhuma restrição adicionada"
+                            android:textSize="12sp"
+                            android:textColor="#999999"
+                            android:padding="12dp"
+                            android:gravity="center"
+                            android:background="#F5F5F5" />
+
+                    </LinearLayout>
+                </ScrollView>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -334,7 +363,6 @@
                     android:layout_gravity="start" />
 
             </LinearLayout>
-
             <!-- CARD Janela Temporal -->
             <LinearLayout
                 android:id="@+id/card_janela_temporal"

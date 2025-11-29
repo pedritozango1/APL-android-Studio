@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.*;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,9 +16,14 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.localizacaoloq.R;
 import com.example.localizacaoloq.Repository.AnuncioRepository;
+import com.example.localizacaoloq.Repository.AuthRepository;
 import com.example.localizacaoloq.Repository.LocalRepository;
+import com.example.localizacaoloq.Repository.PerfilReposistory;
 import com.example.localizacaoloq.model.Anuncio;
 import com.example.localizacaoloq.model.Local;
+import com.example.localizacaoloq.model.Perfil;
+import com.example.localizacaoloq.model.Session;
+import com.example.localizacaoloq.model.SessionManager;
 import com.example.localizacaoloq.model.User;
 
 import java.text.SimpleDateFormat;
@@ -38,13 +44,14 @@ public class FormAnuncio extends AppCompatActivity {
 
     private AnuncioRepository anuncioRepo;
     private LocalRepository localRepo;
+    private PerfilReposistory perfilRepo;
     private List<Local> listaLocais;
     private ArrayAdapter<Local> localAdapter;
-    private Local localSelecionado; // IMPORTANTE: Guardar o local selecionado
-
+    private Local localSelecionado;
     // Para armazenar restrições temporárias
     private Map<String, String> restricoes = new HashMap<>();
-
+    private List<Perfil> listaPerfis = new ArrayList<>();
+    private Perfil perfilSelecionado;
     // Pattern para validação de data/hora
     private static final Pattern DATE_TIME_PATTERN = Pattern.compile("^\\d{2}/\\d{2}/\\d{4} \\d{2}:\\d{2}$");
 
@@ -64,12 +71,14 @@ public class FormAnuncio extends AppCompatActivity {
         inicializarViews();
         configurarListeners();
         carregarLocais();
+        carregarPerfil();
     }
 
     private void inicializarRepositorios() {
         anuncioRepo = AnuncioRepository.getInstance();
         anuncioRepo.setContext(getApplicationContext()); // IMPORTANTE: Definir contexto
         localRepo = LocalRepository.getInstance();
+        perfilRepo=PerfilReposistory.getInstance();
         listaLocais = new ArrayList<>();
     }
 
@@ -189,6 +198,61 @@ public class FormAnuncio extends AppCompatActivity {
                         } else {
                             Toast.makeText(FormAnuncio.this,
                                     "Nenhum local cadastrado", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+            }
+        }).start();
+    }
+    private void carregarPerfil() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SessionManager sessionManager=new SessionManager(getApplicationContext());
+                String id=sessionManager.getSessionId();
+                AuthRepository authrep = new AuthRepository();
+                Session session = authrep.pegarIdSessao(id);
+                List<Perfil> perfis = perfilRepo.listarPerfisUsuario(session.getUser().get_id());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (perfis != null && !perfis.isEmpty()) {
+                            listaPerfis.clear();
+                            listaPerfis.addAll(perfis);
+
+                            // Criar lista apenas com as chaves para exibição
+                            List<String> chavesPerfis = new ArrayList<>();
+                            for (Perfil perfil : perfis) {
+                                chavesPerfis.add(perfil.getChave());
+                            }
+
+                            // Adapter simples com apenas as chaves
+                            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                                    FormAnuncio.this,
+                                    android.R.layout.simple_dropdown_item_1line,
+                                    chavesPerfis
+                            );
+
+                            inputRestricoesExistentes.setAdapter(adapter);
+
+                            inputRestricoesExistentes.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    // Guardar o perfil completo na variável
+                                    perfilSelecionado = listaPerfis.get(position);
+
+                                    // Exibir confirmação
+                                    Toast.makeText(FormAnuncio.this,
+                                            "Perfil selecionado: " + perfilSelecionado.getChave() + " = " + perfilSelecionado.getValor(),
+                                            Toast.LENGTH_SHORT).show();
+
+                                    // Adicionar às restrições
+                                    restricoes.put(perfilSelecionado.getChave(), perfilSelecionado.getValor());
+                                }
+                            });
+                        } else {
+                            Toast.makeText(FormAnuncio.this,
+                                    "Nenhum perfil cadastrado", Toast.LENGTH_LONG).show();
                         }
                     }
                 });

@@ -244,18 +244,15 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
                 });
     }
     private void createLocal() {
-
         String name = etLocalName.getText().toString().trim();
         if (name.isEmpty()) {
             Toast.makeText(this, "Insira o nome do local!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // instância única do repo que chama o servidor
-        LocalRepository apiRepo =  LocalRepository.getInstance();
+        LocalRepository apiRepo = LocalRepository.getInstance();
 
         if (radioGps.isChecked()) {
-
             try {
                 double lat = Double.parseDouble(etLatitude.getText().toString());
                 double lng = Double.parseDouble(etLongitude.getText().toString());
@@ -269,11 +266,11 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
 
                         runOnUiThread(() -> {
                             if (result != null) {
+                                // ✅ Não precisa mais chamar addLocal, o cache já foi atualizado
                                 Toast.makeText(this,
                                         "Local GPS criado com sucesso!",
                                         Toast.LENGTH_SHORT
                                 ).show();
-                                apiRepo.addLocal(gps);
                                 finish();
                             } else {
                                 Toast.makeText(this,
@@ -283,8 +280,7 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
                             }
                         });
                     } catch (Exception e) {
-                        // Captura qualquer erro durante a requisição
-                        e.printStackTrace(); // para ver no Logcat
+                        e.printStackTrace();
                         runOnUiThread(() -> Toast.makeText(
                                 this,
                                 "Erro ao comunicar com o servidor: " + e.getMessage(),
@@ -293,13 +289,11 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
                     }
                 }).start();
 
-
             } catch (Exception e) {
                 Toast.makeText(this, "Coordenadas inválidas!", Toast.LENGTH_SHORT).show();
             }
 
         } else {
-
             List<String> listaSinais = new ArrayList<>();
             listaSinais.add("SSID_EXEMPLO_1");
             listaSinais.add("SSID_EXEMPLO_2");
@@ -311,11 +305,11 @@ public class FormLocalRegistado extends AppCompatActivity implements OnMapReadyC
 
                 runOnUiThread(() -> {
                     if (result != null) {
+                        // ✅ Não precisa mais chamar addLocal, o cache já foi atualizado
                         Toast.makeText(this,
                                 "Local WiFi criado com sucesso!",
                                 Toast.LENGTH_SHORT
                         ).show();
-                        apiRepo.addLocal(wifi);
                         finish();
                     } else {
                         Toast.makeText(this,

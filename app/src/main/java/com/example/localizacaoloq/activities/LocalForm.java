@@ -38,33 +38,59 @@ public class LocalForm extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_local_form);
 
-        rv = findViewById(R.id.recyclerViewLocais);
-        repo = LocalRepository.getInstance();
-        adapter = new AdapterLocal(new ArrayList<>(), new AdapterLocal.OnLocalDeleteListener() {
-            @Override
-            public void onLocalDeleted(Local local, int position) {
-                deletarLocal(local, position);
-            }
+        // ✅ Configurar insets do sistema
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0); // bottom = 0 porque navbar já lida com isso
+            return insets;
         });
 
+        // Inicializar Repository
+        repo = LocalRepository.getInstance();
+
+        // Inicializar Views
+        rv = findViewById(R.id.recyclerViewLocais);
+        tvContador = findViewById(R.id.tvContador);
+        btnAdd = findViewById(R.id.btnAdd);
+
+        // Configurar Adapter
+        adapter = new AdapterLocal(new ArrayList<>(), this::deletarLocal);
+
+        // Configurar RecyclerView
         rv.setLayoutManager(new LinearLayoutManager(this));
         rv.setAdapter(adapter);
 
-        carregarLocais();
+        // Configurar botão adicionar
+        btnAdd.setOnClickListener(v -> startRegistarLocal());
 
-        tvContador = findViewById(R.id.tvContador);
+        // Carregar dados
+        carregarLocais();
         atualizarContador();
 
-        btnAdd = findViewById(R.id.btnAdd);
-        btnAdd.setOnClickListener(v -> startRegistarLocal());
+        // Inicializar NavBarHelper
+        NavBarHelper.setup(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // ✅ Usa o cache se já estiver carregado
+        if (repo.isCacheCarregado()) {
+            adapter.updateLocais(repo.getLocais());
+            atualizarContador();
+        } else {
+            carregarLocais();
+        }
     }
 
     private void deletarLocal(Local local, int position) {
-       new Thread(() -> {
+        new Thread(() -> {
             boolean success = repo.delete(local.get_id());
+
             runOnUiThread(() -> {
                 if (success) {
-                    adapter.removeItem(position);
+                    // ✅ Atualiza a UI com o cache já atualizado
+                    adapter.updateLocais(repo.getLocais());
                     atualizarContador();
                     Toast.makeText(this, "Local deletado com sucesso!", Toast.LENGTH_SHORT).show();
                 } else {
@@ -72,12 +98,6 @@ public class LocalForm extends AppCompatActivity {
                 }
             });
         }).start();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        carregarLocais();
     }
 
     private void atualizarContador() {
@@ -91,16 +111,12 @@ public class LocalForm extends AppCompatActivity {
 
     private void carregarLocais() {
         new Thread(() -> {
+            // ✅ Lista usa cache se disponível, senão busca do servidor
             List<Local> lista = repo.findAll();
+
             runOnUiThread(() -> {
-                if (lista != null && !lista.isEmpty()) {
-                    adapter.updateLocais(lista);
-                    repo.setLocais(lista);
-                    atualizarContador();
-                } else {
-                    adapter.updateLocais(repo.getLocais());
-                    atualizarContador();
-                }
+                adapter.updateLocais(lista);
+                atualizarContador();
             });
         }).start();
     }

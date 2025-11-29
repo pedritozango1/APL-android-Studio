@@ -28,9 +28,8 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.List;
-
 public class FormPerfil extends AppCompatActivity {
-
+    private String idUser;
     private TextInputEditText inputChave, inputValor;
     private PerfilReposistory repo;
     private Button btnAdicionar;
@@ -48,46 +47,18 @@ public class FormPerfil extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        SessionManager sessionManager=new SessionManager(getApplicationContext());
-        String id=sessionManager.getSessionId();
-        Toast.makeText(this,"",Toast.LENGTH_SHORT).show();
-        if(!id.isEmpty()){
-            new Thread(() -> {
-                AuthRepository authrep = new AuthRepository();
-                Session session = authrep.pegarIdSessao(id);
-                if (session != null && session.isActive()) {
-                    runOnUiThread(() -> {
-                        TextView perfilInitials = findViewById(R.id.perfil_initials);
-                        TextView perfilId = findViewById(R.id.perfil_id);
-
-                        if (session.getUser() != null) {
-                            // Pega as iniciais do username (primeiras 2 letras)
-                            String username = session.getUser().getUsername();
-                            String initials = username.length() >= 2 ?
-                                    username.substring(0, 2).toUpperCase() :
-                                    username.toUpperCase();
-
-                            perfilInitials.setText(initials);
-                            perfilId.setText("ID: " + session.getUser().get_id());
-                        }
-                    });
-                }
-            }).start();
-        }
-        // Inicializar NavBarHelper
-        NavBarHelper.setup(this);
 
         // Inicializar Repository
         repo = PerfilReposistory.getInstance();
 
-        // Inicializar Views (IDs corretos do novo XML)
+        // Inicializar Views
         recycler = findViewById(R.id.recyclerAtributos);
         inputChave = findViewById(R.id.input_chave);
         inputValor = findViewById(R.id.input_valor);
         btnAdicionar = findViewById(R.id.btn_adicionar_atributo);
 
         // Configurar Adapter
-        adapter = new AtributoAdapter(new ArrayList<>(), (perfil, position) -> deletarPerfil(perfil, position));
+        adapter = new AtributoAdapter(new ArrayList<>(), this::deletarPerfil);
 
         // Configurar RecyclerView
         recycler.setLayoutManager(new LinearLayoutManager(this));
@@ -96,23 +67,65 @@ public class FormPerfil extends AppCompatActivity {
         // Configurar botão
         btnAdicionar.setOnClickListener(v -> adicionarAtributo());
 
-        // Carregar dados
-        carregarPerfis();
+        // Carregar sessão do usuário
+        carregarSessao();
+
+        NavBarHelper.setup(this);
+    }
+
+    private void carregarSessao() {
+        SessionManager sessionManager = new SessionManager(getApplicationContext());
+        String id = sessionManager.getSessionId();
+
+        if (!id.isEmpty()) {
+            new Thread(() -> {
+                AuthRepository authrep = new AuthRepository();
+                Session session = authrep.pegarIdSessao(id);
+
+                if (session != null && session.isActive() && session.getUser() != null) {
+                    idUser = session.getUser().get_id();
+
+                    runOnUiThread(() -> {
+                        TextView perfilInitials = findViewById(R.id.perfil_initials);
+                        TextView perfilId = findViewById(R.id.perfil_id);
+
+                        String username = session.getUser().getUsername();
+                        String initials = username.length() >= 2 ?
+                                username.substring(0, 2).toUpperCase() :
+                                username.toUpperCase();
+
+                        perfilInitials.setText(initials);
+                        perfilId.setText("ID: " + session.getUser().get_id());
+
+                        // ✅ Carregar perfis após ter o ID do usuário
+                        carregarPerfis();
+                    });
+                }
+            }).start();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        carregarPerfis();
+        if (repo.isCacheCarregado()) {
+            adapter.updatePerfis(repo.getPerfis());
+        }
     }
 
     private void deletarPerfil(Perfil perfil, int position) {
+        if (idUser == null || idUser.isEmpty()) {
+            Toast.makeText(this, "Erro: usuário não identificado!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         new Thread(() -> {
-            boolean success = repo.delete(perfil.get_id());
+            boolean success = repo.removePerfil(idUser, perfil.get_id());
 
             runOnUiThread(() -> {
                 if (success) {
-                    adapter.removeItem(position);
+                    // ✅ Atualiza a UI com o cache já atualizado
+                    adapter.updatePerfis(repo.getPerfis());
                     Toast.makeText(this, "Atributo deletado com sucesso!", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "Erro ao deletar atributo!", Toast.LENGTH_LONG).show();
@@ -122,21 +135,25 @@ public class FormPerfil extends AppCompatActivity {
     }
 
     private void carregarPerfis() {
+        if (idUser == null || idUser.isEmpty()) {
+            return;
+        }
+
         new Thread(() -> {
-            List<Perfil> lista = repo.findAll();
+            List<Perfil> lista = repo.listarPerfisUsuario(idUser);
 
             runOnUiThread(() -> {
-                if (lista != null && !lista.isEmpty()) {
-                    adapter.updatePerfis(lista);
-                    repo.setPerfis(lista);
-                } else {
-                    adapter.updatePerfis(repo.getPerfis());
-                }
+                adapter.updatePerfis(lista);
             });
         }).start();
     }
 
     private void adicionarAtributo() {
+        if (idUser == null || idUser.isEmpty()) {
+            Toast.makeText(this, "Erro: usuário não identificado!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String key = inputChave.getText().toString().trim();
         String value = inputValor.getText().toString().trim();
 
@@ -145,17 +162,18 @@ public class FormPerfil extends AppCompatActivity {
             return;
         }
 
-        // Criar perfil e salvar no banco de dados
         Perfil novoPerfil = new Perfil(key, value);
 
         new Thread(() -> {
-            Perfil perfilCriado = repo.create(novoPerfil);
+            Perfil perfilCriado = repo.addPerfil(idUser, novoPerfil);
 
             runOnUiThread(() -> {
                 if (perfilCriado != null) {
                     inputChave.setText("");
                     inputValor.setText("");
-                    carregarPerfis(); // Recarrega a lista
+
+                    // ✅ Atualiza a UI com o cache já atualizado
+                    adapter.updatePerfis(repo.getPerfis());
                     Toast.makeText(this, "Atributo adicionado com sucesso!", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "Erro ao adicionar atributo!", Toast.LENGTH_LONG).show();

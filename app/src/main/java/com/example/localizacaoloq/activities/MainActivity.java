@@ -39,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
         SessionManager sessionManager=new SessionManager(getApplicationContext());
         String id=sessionManager.getSessionId();
         Toast.makeText(this,"",Toast.LENGTH_SHORT).show();
-       if(!id.isEmpty()){
+
+        if(!id.isEmpty()){
             new Thread(() -> {
                 AuthRepository authrep = new AuthRepository();
                 Session session = authrep.pegarIdSessao(id);
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }).start();
         }
+
         btnCriar=findViewById(R.id.btnConta);
         btnLogar=findViewById(R.id.btnLoginSistema);
 

@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F9F9F9"
+    android:fitsSystemWindows="true"
     tools:context=".activities.FormLocalRegistado">
 
     <!-- Cabeçalho -->
@@ -257,7 +258,6 @@
                         android:paddingEnd="12dp"
                         android:textSize="14sp" />
 
-
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -308,7 +308,6 @@
                         android:layout_marginTop="12dp"
                         android:backgroundTint="#0288D1"
                         app:cornerRadius="8dp" />
-
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>

@@ -1,8 +1,19 @@
 package com.example.localizacaoloq.model;
 
+import java.util.ArrayList;
+
 public class User {
     private String username;
     private String _id;
+    private ArrayList<Perfil> perfil=new ArrayList<>();
+
+    public ArrayList<Perfil> getPerfil() {
+        return perfil;
+    }
+
+    public void addPerfil(Perfil perfil) {
+        this.perfil.add(perfil);
+    }
 
     public String get_id() {
         return _id;
