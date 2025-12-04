@@ -166,7 +166,6 @@ public class FormPerfil extends AppCompatActivity {
 
         new Thread(() -> {
             Perfil perfilCriado = repo.addPerfil(idUser, novoPerfil);
-
             runOnUiThread(() -> {
                 if (perfilCriado != null) {
                     inputChave.setText("");
