@@ -8,4 +8,8 @@
     <color name="tag_bg">#D0F4EF</color>
     <color name="tag_text">#00796B</color>
     <color name="blue">#2196F3</color>
+    <color name="centralizado">#2196F3</color>
+    <color name="descentralizado">#4CAF50</color>
+    <color name="badge_centralizado_bg">#E3F2FD</color>
+    <color name="badge_descentralizado_bg">#E8F5E9</color>
 </resources>

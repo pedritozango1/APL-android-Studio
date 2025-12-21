@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.*;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,44 +15,45 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.localizacaoloq.R;
 import com.example.localizacaoloq.Repository.AnuncioRepository;
-import com.example.localizacaoloq.Repository.AuthRepository;
+import com.example.localizacaoloq.Repository.ChaveRepository;
 import com.example.localizacaoloq.Repository.LocalRepository;
-import com.example.localizacaoloq.Repository.PerfilReposistory;
 import com.example.localizacaoloq.model.Anuncio;
+import com.example.localizacaoloq.model.Chave;
+import com.example.localizacaoloq.model.ListaChave;
 import com.example.localizacaoloq.model.Local;
-import com.example.localizacaoloq.model.Perfil;
-import com.example.localizacaoloq.model.Session;
-import com.example.localizacaoloq.model.SessionManager;
 import com.example.localizacaoloq.model.User;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Pattern;
 
 public class FormAnuncio extends AppCompatActivity {
     private ImageButton btnVoltar;
     private Button btnPublicar;
 
-    // Campos do formulário
-    private EditText inputTitulo, inputMensagem, inputInicio, inputFim;
-    private AutoCompleteTextView inputLocal, inputRestricoesExistentes;
-    private EditText inputRestricaoChave, inputRestricaoValor;
+    // Campos do formulário (IDs CORRIGIDOS conforme XML)
+    private EditText inputTitulo, inputMensagem;
+    private AutoCompleteTextView inputLocal, inputChaveExistente;
+    private EditText inputRestricaoValor;
+    private EditText inputDataInicio, inputHoraInicio, inputDataFim, inputHoraFim;
     private RadioGroup radioGroupEntrega, radioGroupPolitica;
     private RadioButton radioCentralizado, radioDescentralizado, radioWhitelist, radioBlacklist;
     private Button btnAdicionarRestricao;
+    private LinearLayout containerRestricoesSelecionadas;
+    private TextView txtSemRestricoes;
 
+    // Repositories
     private AnuncioRepository anuncioRepo;
     private LocalRepository localRepo;
-    private PerfilReposistory perfilRepo;
-    private List<Local> listaLocais;
-    private ArrayAdapter<Local> localAdapter;
+    private ChaveRepository chaveRepo;
+
+    // Dados
+    private List<Local> listaLocais = new ArrayList<>();
+    private List<Chave> listaChaves = new ArrayList<>();
     private Local localSelecionado;
-    // Para armazenar restrições temporárias
-    private Map<String, String> restricoes = new HashMap<>();
-    private List<Perfil> listaPerfis = new ArrayList<>();
-    private Perfil perfilSelecionado;
-    // Pattern para validação de data/hora
-    private static final Pattern DATE_TIME_PATTERN = Pattern.compile("^\\d{2}/\\d{2}/\\d{4} \\d{2}:\\d{2}$");
+    private Chave chaveSelecionada;
+
+    // Lista de restrições adicionadas (ListaChave)
+    private List<ListaChave> restricoesAdicionadas = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,15 +71,14 @@ public class FormAnuncio extends AppCompatActivity {
         inicializarViews();
         configurarListeners();
         carregarLocais();
-        carregarPerfil();
+        carregarChaves();
     }
 
     private void inicializarRepositorios() {
         anuncioRepo = AnuncioRepository.getInstance();
-        anuncioRepo.setContext(getApplicationContext()); // IMPORTANTE: Definir contexto
+        anuncioRepo.setContext(getApplicationContext());
         localRepo = LocalRepository.getInstance();
-        perfilRepo=PerfilReposistory.getInstance();
-        listaLocais = new ArrayList<>();
+        chaveRepo = ChaveRepository.getInstance();
     }
 
     private void inicializarViews() {
@@ -90,11 +89,18 @@ public class FormAnuncio extends AppCompatActivity {
         inputTitulo = findViewById(R.id.input_titulo);
         inputMensagem = findViewById(R.id.input_mensagem);
         inputLocal = findViewById(R.id.input_local);
-        inputInicio = findViewById(R.id.input_inicio);
-        inputFim = findViewById(R.id.input_fim);
-        inputRestricoesExistentes = findViewById(R.id.input_restricoes_existentes);
-        inputRestricaoChave = findViewById(R.id.input_restricao_chave);
+
+        // Data/Hora SEPARADOS (conforme XML)
+        inputDataInicio = findViewById(R.id.input_data_inicio);
+        inputHoraInicio = findViewById(R.id.input_hora_inicio);
+        inputDataFim = findViewById(R.id.input_data_fim);
+        inputHoraFim = findViewById(R.id.input_hora_fim);
+
+        // Restrições (conforme XML)
+        inputChaveExistente = findViewById(R.id.input_chave_existente);
         inputRestricaoValor = findViewById(R.id.input_restricao_valor);
+        containerRestricoesSelecionadas = findViewById(R.id.container_restricoes_selecionadas);
+        txtSemRestricoes = findViewById(R.id.txt_sem_restricoes);
 
         // Radio groups e buttons
         radioGroupEntrega = findViewById(R.id.radio_group_entrega);
@@ -109,188 +115,110 @@ public class FormAnuncio extends AppCompatActivity {
     }
 
     private void configurarListeners() {
-        btnVoltar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        btnVoltar.setOnClickListener(v -> finish());
+        btnPublicar.setOnClickListener(v -> publicarAnuncio());
+        btnAdicionarRestricao.setOnClickListener(v -> adicionarRestricao());
 
-        btnPublicar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                publicarAnuncio();
-            }
-        });
+        // Listeners para data/hora SEPARADOS
+        inputDataInicio.setOnClickListener(v -> mostrarDatePicker(inputDataInicio));
+        inputHoraInicio.setOnClickListener(v -> mostrarTimePicker(inputHoraInicio));
+        inputDataFim.setOnClickListener(v -> mostrarDatePicker(inputDataFim));
+        inputHoraFim.setOnClickListener(v -> mostrarTimePicker(inputHoraFim));
 
-        btnAdicionarRestricao.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                adicionarRestricao();
-            }
+        inputDataInicio.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) mostrarDatePicker(inputDataInicio);
         });
-
-        // Listeners para data/hora
-        inputInicio.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mostrarDateTimePicker(inputInicio);
-            }
+        inputHoraInicio.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) mostrarTimePicker(inputHoraInicio);
         });
-
-        inputFim.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mostrarDateTimePicker(inputFim);
-            }
+        inputDataFim.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) mostrarDatePicker(inputDataFim);
         });
-
-        inputInicio.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) mostrarDateTimePicker(inputInicio);
-            }
-        });
-
-        inputFim.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) mostrarDateTimePicker(inputFim);
-            }
+        inputHoraFim.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) mostrarTimePicker(inputHoraFim);
         });
     }
 
     private void carregarLocais() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                List<Local> locais = localRepo.findAll();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (locais != null && !locais.isEmpty()) {
-                            listaLocais.clear();
-                            listaLocais.addAll(locais);
+        new Thread(() -> {
+            List<Local> locais = localRepo.findAll();
+            runOnUiThread(() -> {
+                if (locais != null && !locais.isEmpty()) {
+                    listaLocais.clear();
+                    listaLocais.addAll(locais);
 
-                            // CORRIGIDO: Usar ArrayAdapter com conversão para String
-                            List<String> nomesLocais = new ArrayList<>();
-                            for (Local local : locais) {
-                                nomesLocais.add(local.getNome());
-                            }
-
-                            ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                                    FormAnuncio.this,
-                                    android.R.layout.simple_dropdown_item_1line,
-                                    nomesLocais
-                            );
-
-                            inputLocal.setAdapter(adapter);
-
-                            inputLocal.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                    localSelecionado = listaLocais.get(position);
-                                    Toast.makeText(FormAnuncio.this,
-                                            "Local selecionado: " + localSelecionado.getNome(),
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        } else {
-                            Toast.makeText(FormAnuncio.this,
-                                    "Nenhum local cadastrado", Toast.LENGTH_LONG).show();
-                        }
+                    List<String> nomesLocais = new ArrayList<>();
+                    for (Local local : locais) {
+                        nomesLocais.add(local.getNome());
                     }
-                });
-            }
+
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            this,
+                            android.R.layout.simple_dropdown_item_1line,
+                            nomesLocais
+                    );
+
+                    inputLocal.setAdapter(adapter);
+
+                    inputLocal.setOnItemClickListener((parent, view, position, id) -> {
+                        localSelecionado = listaLocais.get(position);
+                        Toast.makeText(this,
+                                "Local: " + localSelecionado.getNome(),
+                                Toast.LENGTH_SHORT).show();
+                    });
+                } else {
+                    Toast.makeText(this, "Nenhum local cadastrado", Toast.LENGTH_LONG).show();
+                }
+            });
         }).start();
     }
-    private void carregarPerfil() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                SessionManager sessionManager=new SessionManager(getApplicationContext());
-                String id=sessionManager.getSessionId();
-                AuthRepository authrep = new AuthRepository();
-                Session session = authrep.pegarIdSessao(id);
-                List<Perfil> perfis = perfilRepo.listarPerfisUsuario(session.getUser().get_id());
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (perfis != null && !perfis.isEmpty()) {
-                            listaPerfis.clear();
-                            listaPerfis.addAll(perfis);
 
-                            // Criar lista apenas com as chaves para exibição
-                            List<String> chavesPerfis = new ArrayList<>();
-                            for (Perfil perfil : perfis) {
-                                chavesPerfis.add(perfil.getChave());
-                            }
+    private void carregarChaves() {
+        new Thread(() -> {
+            List<Chave> chaves = chaveRepo.findAll();
+            runOnUiThread(() -> {
+                if (chaves != null && !chaves.isEmpty()) {
+                    listaChaves.clear();
+                    listaChaves.addAll(chaves);
 
-                            // Adapter simples com apenas as chaves
-                            ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                                    FormAnuncio.this,
-                                    android.R.layout.simple_dropdown_item_1line,
-                                    chavesPerfis
-                            );
-
-                            inputRestricoesExistentes.setAdapter(adapter);
-
-                            inputRestricoesExistentes.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                    // Guardar o perfil completo na variável
-                                    perfilSelecionado = listaPerfis.get(position);
-
-                                    // Exibir confirmação
-                                    Toast.makeText(FormAnuncio.this,
-                                            "Perfil selecionado: " + perfilSelecionado.getChave() + " = " + perfilSelecionado.getValor(),
-                                            Toast.LENGTH_SHORT).show();
-
-                                    // Adicionar às restrições
-                                    restricoes.put(perfilSelecionado.getChave(), perfilSelecionado.getValor());
-                                }
-                            });
-                        } else {
-                            Toast.makeText(FormAnuncio.this,
-                                    "Nenhum perfil cadastrado", Toast.LENGTH_LONG).show();
-                        }
+                    List<String> nomesChaves = new ArrayList<>();
+                    for (Chave chave : chaves) {
+                        nomesChaves.add(chave.getNome());
                     }
-                });
-            }
+
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            this,
+                            android.R.layout.simple_dropdown_item_1line,
+                            nomesChaves
+                    );
+
+                    inputChaveExistente.setAdapter(adapter);
+
+                    inputChaveExistente.setOnItemClickListener((parent, view, position, id) -> {
+                        chaveSelecionada = listaChaves.get(position);
+                        Toast.makeText(this,
+                                "Chave: " + chaveSelecionada.getNome(),
+                                Toast.LENGTH_SHORT).show();
+                    });
+                } else {
+                    Toast.makeText(this, "Nenhuma chave cadastrada", Toast.LENGTH_LONG).show();
+                }
+            });
         }).start();
     }
-    private void mostrarDateTimePicker(final EditText editText) {
+
+    private void mostrarDatePicker(final EditText editText) {
         final Calendar calendar = Calendar.getInstance();
 
-        // DatePicker
         DatePickerDialog datePicker = new DatePickerDialog(
                 this,
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        calendar.set(Calendar.YEAR, year);
-                        calendar.set(Calendar.MONTH, month);
-                        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                (view, year, month, dayOfMonth) -> {
+                    calendar.set(Calendar.YEAR, year);
+                    calendar.set(Calendar.MONTH, month);
+                    calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-                        // TimePicker
-                        TimePickerDialog timePicker = new TimePickerDialog(
-                                FormAnuncio.this,
-                                new TimePickerDialog.OnTimeSetListener() {
-                                    @Override
-                                    public void onTimeSet(TimePicker timeView, int hourOfDay, int minute) {
-                                        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                                        calendar.set(Calendar.MINUTE, minute);
-
-                                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-                                        editText.setText(sdf.format(calendar.getTime()));
-                                    }
-                                },
-                                calendar.get(Calendar.HOUR_OF_DAY),
-                                calendar.get(Calendar.MINUTE),
-                                true
-                        );
-                        timePicker.show();
-                    }
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                    editText.setText(sdf.format(calendar.getTime()));
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -299,22 +227,76 @@ public class FormAnuncio extends AppCompatActivity {
         datePicker.show();
     }
 
-    private void adicionarRestricao() {
-        String chave = inputRestricaoChave.getText().toString().trim();
-        String valor = inputRestricaoValor.getText().toString().trim();
+    private void mostrarTimePicker(final EditText editText) {
+        final Calendar calendar = Calendar.getInstance();
 
-        if (chave.isEmpty() || valor.isEmpty()) {
-            Toast.makeText(this, "Preencha chave e valor da restrição", Toast.LENGTH_SHORT).show();
+        TimePickerDialog timePicker = new TimePickerDialog(
+                this,
+                (view, hourOfDay, minute) -> {
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                    calendar.set(Calendar.MINUTE, minute);
+                    editText.setText(sdf.format(calendar.getTime()));
+                },
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                true
+        );
+        timePicker.show();
+    }
+
+    private void adicionarRestricao() {
+        if (chaveSelecionada == null) {
+            Toast.makeText(this, "Selecione uma chave da lista", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        restricoes.put(chave, valor);
+        String valor = inputRestricaoValor.getText().toString().trim();
+        if (valor.isEmpty()) {
+            inputRestricaoValor.setError("Digite o valor da restrição");
+            return;
+        }
 
-        // Limpar campos
-        inputRestricaoChave.setText("");
+        ListaChave restricao = new ListaChave(
+                chaveSelecionada,
+                valor
+        );
+
+        restricoesAdicionadas.add(restricao);
+
+        adicionarRestricaoNaLista(chaveSelecionada.getNome(), valor, restricoesAdicionadas.size() - 1);
+
+        inputChaveExistente.setText("");
         inputRestricaoValor.setText("");
+        chaveSelecionada = null;
 
-        Toast.makeText(this, "Restrição adicionada: " + chave + " = " + valor, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Restrição adicionada", Toast.LENGTH_SHORT).show();
+    }
+
+    private void adicionarRestricaoNaLista(String nomeChave, String valor, int position) {
+        txtSemRestricoes.setVisibility(View.GONE);
+
+        View itemView = getLayoutInflater().inflate(R.layout.item_atributo, containerRestricoesSelecionadas, false);
+
+        TextView txtChaveNome = itemView.findViewById(R.id.textKey);
+        TextView txtRestricaoValor = itemView.findViewById(R.id.textValue);
+        ImageButton btnRemover = itemView.findViewById(R.id.btnDelete);
+
+        txtChaveNome.setText(nomeChave);
+        txtRestricaoValor.setText("Valor: " + valor);
+
+        btnRemover.setOnClickListener(v -> {
+            restricoesAdicionadas.remove(position);
+            containerRestricoesSelecionadas.removeView(itemView);
+
+            if (restricoesAdicionadas.isEmpty()) {
+                txtSemRestricoes.setVisibility(View.VISIBLE);
+            }
+
+            Toast.makeText(this, "Restrição removida", Toast.LENGTH_SHORT).show();
+        });
+
+        containerRestricoesSelecionadas.addView(itemView);
     }
 
     private void publicarAnuncio() {
@@ -322,21 +304,20 @@ public class FormAnuncio extends AppCompatActivity {
             return;
         }
 
-        // Coletar dados do formulário
         String titulo = inputTitulo.getText().toString().trim();
         String mensagem = inputMensagem.getText().toString().trim();
-
-        // Modo de entrega
         String modoEntrega = radioCentralizado.isChecked() ? "centralizado" : "descentralizado";
-
-        // Política
         String politica = radioWhitelist.isChecked() ? "whitelist" : "blacklist";
 
-        // Datas
-        Date inicio = parseDateTime(inputInicio.getText().toString());
-        Date fim = parseDateTime(inputFim.getText().toString());
+        Date inicio = combinarDataHora(
+                inputDataInicio.getText().toString(),
+                inputHoraInicio.getText().toString()
+        );
+        Date fim = combinarDataHora(
+                inputDataFim.getText().toString(),
+                inputHoraFim.getText().toString()
+        );
 
-        // Validar datas
         if (inicio == null || fim == null) {
             Toast.makeText(this, "Erro ao processar datas", Toast.LENGTH_LONG).show();
             return;
@@ -347,61 +328,54 @@ public class FormAnuncio extends AppCompatActivity {
             return;
         }
 
-        // Mostrar loading
         btnPublicar.setEnabled(false);
         btnPublicar.setText("Publicando...");
 
-        // Enviar para a API em thread separada
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // Obter usuário logado
-                User userLogado = anuncioRepo.getCurrentUser();
+        new Thread(() -> {
+            User userLogado = anuncioRepo.getCurrentUser();
 
-                if (userLogado == null) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            btnPublicar.setEnabled(true);
-                            btnPublicar.setText("Publicar Anúncio");
-                            Toast.makeText(FormAnuncio.this,
-                                    "Erro: usuário não identificado. Faça login novamente.",
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    });
-                    return;
-                }
-
-                // Criar objeto Anuncio com todos os dados corretos
-                Anuncio novoAnuncio = new Anuncio(titulo, mensagem, localSelecionado, userLogado,
-                        modoEntrega, politica, inicio, fim);
-
-                // Enviar para a API
-                Anuncio anuncioCriado = anuncioRepo.create(novoAnuncio);
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        btnPublicar.setEnabled(true);
-                        btnPublicar.setText("Publicar Anúncio");
-
-                        if (anuncioCriado != null) {
-                            Toast.makeText(FormAnuncio.this,
-                                    "Anúncio publicado com sucesso!", Toast.LENGTH_LONG).show();
-                            finish(); // Voltar para tela anterior
-                        } else {
-                            Toast.makeText(FormAnuncio.this,
-                                    "Erro ao publicar anúncio. Verifique os dados e tente novamente.",
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    }
+            if (userLogado == null) {
+                runOnUiThread(() -> {
+                    btnPublicar.setEnabled(true);
+                    btnPublicar.setText("Publicar Anúncio");
+                    Toast.makeText(this,
+                            "Erro: usuário não identificado. Faça login novamente.",
+                            Toast.LENGTH_LONG).show();
                 });
+                return;
             }
+
+            Anuncio novoAnuncio = new Anuncio(
+                    titulo,
+                    mensagem,
+                    localSelecionado,
+                    restricoesAdicionadas,
+                    userLogado,
+                    modoEntrega,
+                    politica,
+                    inicio,
+                    fim
+            );
+
+            Anuncio anuncioCriado = anuncioRepo.create(novoAnuncio);
+
+            runOnUiThread(() -> {
+                btnPublicar.setEnabled(true);
+                btnPublicar.setText("Publicar Anúncio");
+
+                if (anuncioCriado != null) {
+                    Toast.makeText(this, "Anúncio publicado com sucesso!", Toast.LENGTH_LONG).show();
+                    finish();
+                } else {
+                    Toast.makeText(this,
+                            "Erro ao publicar anúncio. Verifique os dados.",
+                            Toast.LENGTH_LONG).show();
+                }
+            });
         }).start();
     }
 
     private boolean validarFormulario() {
-        // Validar título
         if (TextUtils.isEmpty(inputTitulo.getText())) {
             inputTitulo.setError("Título é obrigatório");
             inputTitulo.requestFocus();
@@ -414,7 +388,6 @@ public class FormAnuncio extends AppCompatActivity {
             return false;
         }
 
-        // Validar mensagem
         if (TextUtils.isEmpty(inputMensagem.getText())) {
             inputMensagem.setError("Mensagem é obrigatória");
             inputMensagem.requestFocus();
@@ -427,49 +400,46 @@ public class FormAnuncio extends AppCompatActivity {
             return false;
         }
 
-        // Validar local selecionado
         if (localSelecionado == null) {
             inputLocal.setError("Selecione um local da lista");
-            Toast.makeText(this, "Por favor, selecione um local da lista", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Selecione um local", Toast.LENGTH_SHORT).show();
             return false;
         }
 
-        // Validar datas
-        if (TextUtils.isEmpty(inputInicio.getText())) {
-            inputInicio.setError("Data de início é obrigatória");
-            inputInicio.requestFocus();
+        if (TextUtils.isEmpty(inputDataInicio.getText())) {
+            inputDataInicio.setError("Data de início é obrigatória");
+            inputDataInicio.requestFocus();
             return false;
         }
 
-        if (TextUtils.isEmpty(inputFim.getText())) {
-            inputFim.setError("Data de fim é obrigatória");
-            inputFim.requestFocus();
+        if (TextUtils.isEmpty(inputHoraInicio.getText())) {
+            inputHoraInicio.setError("Hora de início é obrigatória");
+            inputHoraInicio.requestFocus();
             return false;
         }
 
-        // Validar formato das datas
-        if (!DATE_TIME_PATTERN.matcher(inputInicio.getText().toString()).matches()) {
-            inputInicio.setError("Formato inválido. Use: dd/mm/aaaa hh:mm");
-            inputInicio.requestFocus();
+        if (TextUtils.isEmpty(inputDataFim.getText())) {
+            inputDataFim.setError("Data de fim é obrigatória");
+            inputDataFim.requestFocus();
             return false;
         }
 
-        if (!DATE_TIME_PATTERN.matcher(inputFim.getText().toString()).matches()) {
-            inputFim.setError("Formato inválido. Use: dd/mm/aaaa hh:mm");
-            inputFim.requestFocus();
+        if (TextUtils.isEmpty(inputHoraFim.getText())) {
+            inputHoraFim.setError("Hora de fim é obrigatória");
+            inputHoraFim.requestFocus();
             return false;
         }
 
         return true;
     }
 
-    private Date parseDateTime(String dateTimeStr) {
+    private Date combinarDataHora(String dataStr, String horaStr) {
         try {
+            String dateTimeStr = dataStr + " " + horaStr;
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
             return sdf.parse(dateTimeStr);
         } catch (Exception e) {
-            Log.e("FormAnuncio", "Erro ao parsear data: " + e.getMessage());
-            e.printStackTrace();
+            Log.e("FormAnuncio", "Erro ao parsear data/hora: " + e.getMessage());
             return null;
         }
     }

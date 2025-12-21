@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     android:background="#F9F9F9">
 
-    <!-- HEADER Simples para Criar Anúncio -->
+    <!-- HEADER -->
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
@@ -36,9 +36,6 @@
             android:textStyle="bold"
             android:textColor="#000000"
             android:gravity="left" />
-        <View
-            android:layout_width="40dp"
-            android:layout_height="40dp" />
     </LinearLayout>
 
     <!-- ScrollView para conteúdo rolável -->
@@ -51,7 +48,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- LinearLayout Principal do Formulário -->
         <LinearLayout
             android:id="@+id/form_container"
             android:layout_width="match_parent"
@@ -80,6 +76,7 @@
                     android:textColor="@color/black"
                     android:layout_marginBottom="16dp" />
 
+                <!-- Título (maxlength: 200) -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/input_titulo_layout"
                     android:layout_width="match_parent"
@@ -90,17 +87,21 @@
                     app:boxBackgroundColor="#FFFFFF"
                     app:boxStrokeColor="#E55C4D"
                     app:hintTextColor="#E55C4D"
-                    app:boxStrokeWidth="0dp">
+                    app:boxStrokeWidth="0dp"
+                    app:counterEnabled="true"
+                    app:counterMaxLength="200">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/input_titulo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="Título"
-                        android:text="Ex: Palestra sobre IA"
-                        android:textSize="14sp" />
+                        android:maxLength="200"
+                        android:textSize="14sp"
+                        android:inputType="text" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Mensagem (maxlength: 1000) -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/input_mensagem_layout"
                     android:layout_width="match_parent"
@@ -111,19 +112,22 @@
                     app:boxBackgroundColor="#FFFFFF"
                     app:boxStrokeColor="#E55C4D"
                     app:hintTextColor="#E55C4D"
-                    app:boxStrokeWidth="0dp">
+                    app:boxStrokeWidth="0dp"
+                    app:counterEnabled="true"
+                    app:counterMaxLength="1000">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/input_mensagem"
                         android:layout_width="match_parent"
                         android:layout_height="120dp"
                         android:hint="Mensagem"
-                        android:text="Descreva o anúncio..."
+                        android:maxLength="1000"
                         android:textSize="14sp"
                         android:gravity="top"
                         android:inputType="textMultiLine" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Local (ObjectId ref) - Deve ser carregado dinamicamente -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/input_local_layout"
                     android:layout_width="match_parent"
@@ -140,8 +144,9 @@
                         android:id="@+id/input_local"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Selecione um local"
-                        android:textSize="14sp" />
+                        android:hint="Selecione um local *"
+                        android:textSize="14sp"
+                        android:inputType="none" />
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
@@ -181,7 +186,8 @@
                         android:checked="true"
                         android:textSize="14sp"
                         android:buttonTint="#E55C4D"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="8dp"
+                        android:tag="centralizado" />
 
                     <RadioButton
                         android:id="@+id/radio_descentralizado"
@@ -189,7 +195,8 @@
                         android:layout_height="wrap_content"
                         android:text="Descentralizado (WiFi-Direct)\nEntrega peer-to-peer"
                         android:textSize="14sp"
-                        android:buttonTint="#E55C4D" />
+                        android:buttonTint="#E55C4D"
+                        android:tag="descentralizado" />
 
                 </RadioGroup>
 
@@ -227,108 +234,56 @@
                         android:id="@+id/radio_whitelist"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Whitelist (Permitir apenas)"
+                        android:text="Whitelist (Permitir apenas)\nApenas usuários com os atributos especificados verão o anúncio"
                         android:textSize="14sp"
                         android:buttonTint="#E55C4D"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="8dp"
+                        android:tag="whitelist" />
 
                     <RadioButton
                         android:id="@+id/radio_blacklist"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Blacklist (Bloquear)"
+                        android:text="Blacklist (Bloquear)\nUsuários com os atributos especificados NÃO verão o anúncio"
                         android:checked="true"
                         android:textSize="14sp"
-                        android:buttonTint="#E55C4D" />
+                        android:buttonTint="#E55C4D"
+                        android:tag="blacklist" />
 
                 </RadioGroup>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/input_restricoes_existentes_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-                    android:background="#FFFFFF"
-                    app:boxBackgroundColor="#FFFFFF"
-                    app:boxStrokeColor="#E55C4D"
-                    app:hintTextColor="#E55C4D"
-                    app:boxStrokeWidth="0dp"
-                    app:endIconMode="dropdown_menu">
-
-                    <AutoCompleteTextView
-                        android:id="@+id/input_restricoes_existentes"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Selecionar restrição existente"
-                        android:textSize="14sp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <!-- Título da seção -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Restrições Selecionadas"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"
-                    android:layout_marginBottom="8dp" />
-
-                <!-- RecyclerView ou ScrollView para lista de perfis selecionados -->
-                <ScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:maxHeight="150dp"
-                    android:layout_marginBottom="12dp">
-
-                    <LinearLayout
-                        android:id="@+id/container_perfis_selecionados"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <!-- Mensagem quando não há perfis -->
-                        <TextView
-                            android:id="@+id/txt_sem_perfis"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Nenhuma restrição adicionada"
-                            android:textSize="12sp"
-                            android:textColor="#999999"
-                            android:padding="12dp"
-                            android:gravity="center"
-                            android:background="#F5F5F5" />
-
-                    </LinearLayout>
-                </ScrollView>
-
+                <!-- Adicionar Nova Restrição -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginBottom="12dp">
 
+                    <!-- Dropdown: Selecionar Chave (chaveId) -->
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/input_restricao_chave_layout"
+                        android:id="@+id/input_chave_existente_layout"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginEnd="8dp"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
                         android:background="#FFFFFF"
                         app:boxBackgroundColor="#FFFFFF"
                         app:boxStrokeColor="#E55C4D"
                         app:hintTextColor="#E55C4D"
-                        app:boxStrokeWidth="0dp">
+                        app:boxStrokeWidth="0dp"
+                        app:endIconMode="dropdown_menu">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/input_restricao_chave"
+                        <AutoCompleteTextView
+                            android:id="@+id/input_chave_existente"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Chave"
-                            android:textSize="14sp" />
+                            android:hint="Selecionar chave"
+                            android:textSize="14sp"
+                            android:inputType="none" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <!-- Input: Valor da Chave -->
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/input_restricao_valor_layout"
                         android:layout_width="0dp"
@@ -360,9 +315,48 @@
                     android:textSize="14sp"
                     android:textColor="#E55C4D"
                     android:background="@android:color/transparent"
-                    android:layout_gravity="start" />
+                    android:layout_gravity="start"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Lista de Restrições Selecionadas -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Restrições Selecionadas"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="8dp" />
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxHeight="150dp"
+                    android:layout_marginBottom="12dp">
+
+                    <LinearLayout
+                        android:id="@+id/container_restricoes_selecionadas"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- Mensagem quando não há restrições -->
+                        <TextView
+                            android:id="@+id/txt_sem_restricoes"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Nenhuma restrição adicionada"
+                            android:textSize="12sp"
+                            android:textColor="#999999"
+                            android:padding="12dp"
+                            android:gravity="center"
+                            android:background="#F5F5F5" />
+
+                    </LinearLayout>
+                </ScrollView>
 
             </LinearLayout>
+
             <!-- CARD Janela Temporal -->
             <LinearLayout
                 android:id="@+id/card_janela_temporal"
@@ -384,82 +378,141 @@
                     android:textColor="@color/black"
                     android:layout_marginBottom="16dp" />
 
+                <!-- Data/Hora Início -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Início *"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="8dp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginBottom="16dp">
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Início"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/black"
-                        android:gravity="start" />
-
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/input_inicio_layout"
+                        android:id="@+id/input_data_inicio_layout"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                         android:background="#FFFFFF"
                         app:boxBackgroundColor="#FFFFFF"
                         app:boxStrokeColor="#E55C4D"
                         app:hintTextColor="#E55C4D"
-                        app:boxStrokeWidth="0dp">
+                        app:boxStrokeWidth="0dp"
+                        app:startIconDrawable="@android:drawable/ic_menu_my_calendar"
+                        app:startIconTint="#E55C4D">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/input_inicio"
+                            android:id="@+id/input_data_inicio"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="dd/mm/aaaa --:--"
-                            android:inputType="date|time"
+                            android:hint="Data"
+                            android:focusable="false"
+                            android:clickable="true"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/input_hora_inicio_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        android:background="#FFFFFF"
+                        app:boxBackgroundColor="#FFFFFF"
+                        app:boxStrokeColor="#E55C4D"
+                        app:hintTextColor="#E55C4D"
+                        app:boxStrokeWidth="0dp"
+                        app:startIconDrawable="@android:drawable/ic_menu_recent_history"
+                        app:startIconTint="#E55C4D">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_hora_inicio"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Hora"
+                            android:focusable="false"
+                            android:clickable="true"
                             android:textSize="14sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
+
+                <!-- Data/Hora Fim -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fim *"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="8dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Fim"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/black"
-                        android:gravity="start" />
-
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/input_fim_layout"
+                        android:id="@+id/input_data_fim_layout"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:layout_marginEnd="8dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                         android:background="#FFFFFF"
                         app:boxBackgroundColor="#FFFFFF"
                         app:boxStrokeColor="#E55C4D"
                         app:hintTextColor="#E55C4D"
-                        app:boxStrokeWidth="0dp">
+                        app:boxStrokeWidth="0dp"
+                        app:startIconDrawable="@android:drawable/ic_menu_my_calendar"
+                        app:startIconTint="#E55C4D">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/input_fim"
+                            android:id="@+id/input_data_fim"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="dd/mm/aaaa --:--"
-                            android:inputType="date|time"
+                            android:hint="Data"
+                            android:focusable="false"
+                            android:clickable="true"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/input_hora_fim_layout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        android:background="#FFFFFF"
+                        app:boxBackgroundColor="#FFFFFF"
+                        app:boxStrokeColor="#E55C4D"
+                        app:hintTextColor="#E55C4D"
+                        app:boxStrokeWidth="0dp"
+                        app:startIconDrawable="@android:drawable/ic_menu_recent_history"
+                        app:startIconTint="#E55C4D">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/input_hora_fim"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Hora"
+                            android:focusable="false"
+                            android:clickable="true"
                             android:textSize="14sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
+
             </LinearLayout>
 
         </LinearLayout>

@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:background="#F9F9F9"
     tools:context=".activities.FormAviso">
+
     <!-- Cabeçalho: Botão Voltar + Título -->
     <LinearLayout
         android:id="@+id/header"
@@ -17,6 +18,7 @@
         android:gravity="center_vertical"
         android:background="#FFFFFF"
         app:layout_constraintTop_toTopOf="parent">
+
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -26,6 +28,7 @@
             android:textStyle="bold"
             android:textColor="#000000"
             android:gravity="left" />
+
         <View
             android:layout_width="40dp"
             android:layout_height="40dp" />
@@ -43,18 +46,20 @@
         app:layout_constraintTop_toBottomOf="@id/header">
 
         <LinearLayout
+            android:id="@+id/scroll_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="12dp">
-            <!-- Linha principal: ícone + título + tag -->
+
+            <!-- CONTEÚDO EXISTENTE (pode remover ou comentar para testes) -->
+            <!--
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <!-- Ícone -->
                 <ImageView
                     android:layout_width="48dp"
                     android:layout_height="48dp"
@@ -63,7 +68,6 @@
                     android:src="@android:drawable/ic_menu_info_details"
                     app:tint="#5DB1F0" />
 
-                <!-- Título -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -72,7 +76,6 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <!-- Tag "Novo" -->
                 <TextView
                     android:layout_width="72dp"
                     android:layout_height="wrap_content"
@@ -85,14 +88,12 @@
                     android:textSize="12sp" />
             </LinearLayout>
 
-            <!-- Descrição + Local + Data -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:orientation="vertical">
 
-                <!-- Descrição -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -100,7 +101,6 @@
                     android:textColor="#555555"
                     android:textSize="13sp" />
 
-                <!-- Local + Data -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -108,7 +108,6 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
-                    <!-- Local -->
                     <ImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
@@ -125,7 +124,6 @@
                         android:textColor="#888888"
                         android:textSize="12sp" />
 
-                    <!-- Data -->
                     <ImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
@@ -142,6 +140,30 @@
                         android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
+            -->
+            <!-- FIM DO CONTEÚDO EXISTENTE -->
+
+            <!-- ADICIONE AQUI OS NOVOS ELEMENTOS -->
+            <!-- Mensagem quando não há notificações -->
+            <TextView
+                android:id="@+id/txt_sem_notificacoes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nenhuma notificação no momento"
+                android:textSize="16sp"
+                android:textColor="@android:color/darker_gray"
+                android:gravity="center"
+                android:paddingTop="100dp"
+                android:visibility="gone" />
+
+            <!-- Container das notificações -->
+            <LinearLayout
+                android:id="@+id/container_notificacoes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="16dp" />
+
         </LinearLayout>
     </ScrollView>
 

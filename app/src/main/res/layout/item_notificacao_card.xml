@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardUseCompatPadding="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Linha 1: Título com ícone -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <!-- Ícone do anúncio -->
+            <ImageView
+                android:id="@+id/icone_anuncio"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_announcement"
+                android:tint="#5DB1F0"
+                android:contentDescription="ícone anúncio" />
+
+            <!-- Título do anúncio -->
+            <TextView
+                android:id="@+id/txt_titulo_anuncio"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Título do Anúncio"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <!-- Tag "Novo" -->
+            <TextView
+                android:id="@+id/txt_tag_novo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NOVO"
+                android:textSize="10sp"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/tag_novo_background"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <!-- Linha 2: Descrição -->
+        <TextView
+            android:id="@+id/txt_descricao_anuncio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:text="Descrição do anúncio aqui..."
+            android:textColor="#555555"
+            android:textSize="14sp"
+            android:lineSpacingExtra="2dp"
+            android:maxLines="3"
+            android:ellipsize="end" />
+
+        <!-- Linha 3: Local -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_location"
+                android:tint="#888888"
+                android:contentDescription="ícone local" />
+
+            <TextView
+                android:id="@+id/txt_local_anuncio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Local não especificado"
+                android:textColor="#888888"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/badge_local"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text=""
+                android:textSize="11sp"
+                android:textColor="#5DB1F0"
+                android:background="@drawable/badge_background"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="1dp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <!-- Linha 4: Data/Hora -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_calendar"
+                android:tint="#888888"
+                android:contentDescription="ícone data" />
+
+            <TextView
+                android:id="@+id/txt_data_anuncio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00/00/0000 00:00"
+                android:textColor="#888888"
+                android:textSize="13sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <!-- Modo de entrega -->
+            <TextView
+                android:id="@+id/badge_modo_entrega"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CENTRALIZADO"
+                android:textSize="10sp"
+                android:textColor="#666666"
+                android:background="@drawable/badge_outline_background"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="1px" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

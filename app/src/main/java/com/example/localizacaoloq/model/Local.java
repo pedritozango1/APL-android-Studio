@@ -6,7 +6,7 @@ public abstract class Local {
     private String tipo; // "GPS" ou "WIFI"
 
 
-
+public  Local(){}
     public Local(String nome, String tipo) {
         this.nome = nome;
         this.tipo = tipo;
