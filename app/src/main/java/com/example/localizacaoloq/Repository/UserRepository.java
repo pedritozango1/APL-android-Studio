@@ -8,6 +8,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class UserRepository extends  ApiReposistory{
+
+    private  static User userLogado;
+
+    public  static  User getIntance(){
+        if(userLogado==null)
+            userLogado=new User();
+        return userLogado;
+    }
     public String registerUser(User user) {
         StringBuilder response = new StringBuilder();
 

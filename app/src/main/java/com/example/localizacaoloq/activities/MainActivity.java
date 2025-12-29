@@ -22,7 +22,9 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.localizacaoloq.R;
 import com.example.localizacaoloq.Repository.AuthRepository;
+import com.example.localizacaoloq.Repository.ConfigRepository;
 import com.example.localizacaoloq.model.Auth;
+import com.example.localizacaoloq.model.Perfil;
 import com.example.localizacaoloq.model.Session;
 import com.example.localizacaoloq.model.SessionManager;
 import com.example.localizacaoloq.model.User;
@@ -33,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
     private Button btnLogar;
     private Button btnCriar;
     private Auth auth;
+    private User user;
+    private UserRepository userRepo;
+    private ConfigRepository configRepository;
     private ReportalLocalizacaoService localizacaoService;
     private LocationManager locationManager;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
@@ -49,26 +54,68 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Inicializar repositório de configurações
+        configRepository = new ConfigRepository(this);
+
         // Solicitar permissões de localização
         solicitarPermissoesLocalizacao();
 
         SessionManager sessionManager = new SessionManager(getApplicationContext());
         String id = sessionManager.getSessionId();
 
-        if(!id.isEmpty()){
+        // Log para debug
+        Log.d("MainActivity", "Session ID no onCreate: " + (id != null ? id : "null"));
+
+        if (id != null && !id.isEmpty()) {
+            userRepo = new UserRepository();
             new Thread(() -> {
-                AuthRepository authrep = new AuthRepository();
-                Session session = authrep.pegarIdSessao(id);
-                if (session != null && session.isActive()) {
-                    runOnUiThread(() ->{
-                        // Inicializar e mostrar localização
-                        localizacaoService = new ReportalLocalizacaoService(this);
-                        mostrarLocalizacaoAtual();
-                        localizacaoService.iniciarMonitoramento();
-                        startHome();
+                try {
+                    AuthRepository authrep = new AuthRepository();
+                    Session session = authrep.pegarIdSessao(id);
+
+                    runOnUiThread(() -> {
+                        if (session != null && session.isActive()) {
+                            Log.d("MainActivity", "Sessão válida encontrada");
+                            iniciarUtilizador(session);
+
+                            // VERIFICAR E CRIAR CONFIGURAÇÕES DO USUÁRIO
+                            verificarECriarConfiguracoesUsuario();
+
+                            // Inicializar e mostrar localização
+                            localizacaoService = new ReportalLocalizacaoService(this);
+                            mostrarLocalizacaoAtual();
+                            localizacaoService.iniciarMonitoramento();
+                            startHome();
+                        } else {
+                            // Sessão inválida ou expirada - limpar sessão local
+                            Log.d("MainActivity", "Sessão inválida ou expirada");
+                            sessionManager.clearSession();
+
+                            // Mostrar mensagem informativa
+                            if (session == null) {
+                                Toast.makeText(MainActivity.this,
+                                        "Sessão expirada. Faça login novamente.",
+                                        Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(MainActivity.this,
+                                        "Sessão inativa. Faça login novamente.",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                } catch (Exception e) {
+                    Log.e("MainActivity", "Erro ao verificar sessão: " + e.getMessage());
+                    runOnUiThread(() -> {
+                        sessionManager.clearSession();
+                        Toast.makeText(MainActivity.this,
+                                "Erro ao verificar sessão. Faça login novamente.",
+                                Toast.LENGTH_SHORT).show();
                     });
                 }
             }).start();
+        } else {
+            Log.d("MainActivity", "Nenhuma sessão salva encontrada");
+            // Mostrar tela de login normalmente
         }
 
         btnCriar = findViewById(R.id.btnConta);
@@ -84,48 +131,112 @@ public class MainActivity extends AppCompatActivity {
         btnLogar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText etUsername = findViewById(R.id.etUsername);
-                EditText etPassword = findViewById(R.id.etPassword);
-
-                String nome = etUsername.getText().toString().trim();
-                String senha = etPassword.getText().toString();
-
-                if (nome.isEmpty() || senha.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                User utilizador = new User(nome, senha);
-                AuthRepository authRepository = new AuthRepository();
-
-                new Thread(() -> {
-                    Session auth = authRepository.login(utilizador);
-                    runOnUiThread(() -> {
-                        if (auth != null && auth.getSessionId() != null) {
-                            // Salvar sessionId localmente
-                            SessionManager sessionManager = new SessionManager(MainActivity.this);
-                            sessionManager.saveSession(auth.getSessionId());
-
-                            // Mostrar localização após login
-                            mostrarLocalizacaoAtual();
-
-                            // Iniciar serviço de localização
-                            localizacaoService = new ReportalLocalizacaoService(MainActivity.this);
-                            localizacaoService.iniciarMonitoramento();
-
-                            Toast.makeText(MainActivity.this, "Login bem-sucedido!", Toast.LENGTH_SHORT).show();
-                            // Ir para HomeActivity
-                            startHome();
-                        } else {
-                            Toast.makeText(MainActivity.this, "Credenciais inválidas!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }).start();
+                realizarLogin();
             }
         });
 
         // Mostrar localização ao iniciar o app
         mostrarLocalizacaoAtual();
+    }
+
+    // MÉTODO SEPARADO PARA REALIZAR LOGIN
+    private void realizarLogin() {
+        EditText etUsername = findViewById(R.id.etUsername);
+        EditText etPassword = findViewById(R.id.etPassword);
+
+        String nome = etUsername.getText().toString().trim();
+        String senha = etPassword.getText().toString();
+
+        if (nome.isEmpty() || senha.isEmpty()) {
+            Toast.makeText(MainActivity.this, "Preencha todos os campos", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        User utilizador = new User(nome, senha);
+        AuthRepository authRepository = new AuthRepository();
+
+        new Thread(() -> {
+            try {
+                Session auth = authRepository.login(utilizador);
+                runOnUiThread(() -> {
+                    if (auth != null && auth.getSessionId() != null) {
+                        // Salvar sessionId localmente
+                        SessionManager sessionManager = new SessionManager(MainActivity.this);
+                        sessionManager.saveSession(auth.getSessionId());
+
+                        // Inicializar usuário após login
+                        userRepo = new UserRepository();
+                        userRepo.getIntance().set_id(auth.getUser().get_id());
+                        userRepo.getIntance().setUsername(auth.getUser().getUsername());
+                        for (Perfil perfil : auth.getUser().getPerfil()) {
+                            userRepo.getIntance().addPerfil(perfil);
+                        }
+                        userRepo.getIntance().setPassword(auth.getUser().getPassword());
+
+                        // VERIFICAR E CRIAR CONFIGURAÇÕES DO USUÁRIO APÓS LOGIN
+                        verificarECriarConfiguracoesUsuario();
+
+                        // Mostrar localização após login
+                        mostrarLocalizacaoAtual();
+
+                        // Iniciar serviço de localização
+                        localizacaoService = new ReportalLocalizacaoService(MainActivity.this);
+                        localizacaoService.iniciarMonitoramento();
+
+                        Toast.makeText(MainActivity.this, "Login bem-sucedido!", Toast.LENGTH_SHORT).show();
+                        // Ir para HomeActivity
+                        startHome();
+                    } else {
+                        Toast.makeText(MainActivity.this, "Credenciais inválidas!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } catch (Exception e) {
+                Log.e("MainActivity", "Erro no login: " + e.getMessage());
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this,
+                            "Erro ao conectar com o servidor. Tente novamente.",
+                            Toast.LENGTH_SHORT).show();
+                });
+            }
+        }).start();
+    }
+
+    // MÉTODO PARA VERIFICAR E CRIAR CONFIGURAÇÕES DO USUÁRIO
+    private void verificarECriarConfiguracoesUsuario() {
+        try {
+            // Verificar se userRepo foi inicializado
+            if (userRepo == null || userRepo.getIntance() == null) {
+                Log.w("MainActivity", "UserRepository não inicializado");
+                return;
+            }
+
+            // Obter ID do usuário do UserRepository
+            String userId = userRepo.getIntance().get_id();
+
+            if (userId == null || userId.isEmpty()) {
+                Log.w("MainActivity", "ID do usuário não encontrado");
+                return;
+            }
+
+            Log.d("MainActivity", "Verificando configurações para usuário: " + userId);
+
+            // Verificar se existem configurações para este usuário
+            if (!configRepository.existeConfiguracoesParaUsuario(userId)) {
+                // Criar configurações padrão para o usuário
+                boolean criado = configRepository.criarConfiguracoesPadraoUsuario(userId);
+                if (criado) {
+                    Log.d("MainActivity", "Configurações padrão criadas para usuário: " + userId);
+                } else {
+                    Log.e("MainActivity", "Erro ao criar configurações para usuário: " + userId);
+                }
+            } else {
+                Log.d("MainActivity", "Configurações já existem para usuário: " + userId);
+            }
+
+        } catch (Exception e) {
+            Log.e("MainActivity", "Erro ao verificar/criar configurações: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void solicitarPermissoesLocalizacao() {
@@ -145,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
             );
         } else {
             // Já tem permissão, pode usar a localização
-            Toast.makeText(this, "Permissão de localização já concedida", Toast.LENGTH_SHORT).show();
+            Log.d("MainActivity", "Permissão de localização já concedida");
         }
     }
 
@@ -166,32 +277,19 @@ public class MainActivity extends AppCompatActivity {
                                 location.getAccuracy()
                         );
 
-                        Toast.makeText(MainActivity.this, mensagem, Toast.LENGTH_LONG).show();
                         Log.d("MainActivity", mensagem);
 
-                        // Também mostrar no Logcat para debug
-                        Log.i("LOCALIZACAO",
-                                String.format("Latitude: %.6f, Longitude: %.6f, Provider: %s",
-                                        location.getLatitude(),
-                                        location.getLongitude(),
-                                        location.getProvider()
-                                )
-                        );
+                        // Mostrar Toast apenas se não estiver indo para Home
+                        if (btnLogar.getVisibility() == View.VISIBLE) {
+                            Toast.makeText(MainActivity.this, mensagem, Toast.LENGTH_LONG).show();
+                        }
                     } else {
-                        Toast.makeText(MainActivity.this,
-                                "📍 Localização não disponível.\nVerifique se o GPS está ligado.",
-                                Toast.LENGTH_LONG).show();
                         Log.d("MainActivity", "Localização não disponível");
                     }
                 });
 
             } catch (Exception e) {
                 Log.e("MainActivity", "Erro ao obter localização: " + e.getMessage());
-                runOnUiThread(() -> {
-                    Toast.makeText(MainActivity.this,
-                            "Erro ao obter localização: " + e.getMessage(),
-                            Toast.LENGTH_LONG).show();
-                });
             }
         }).start();
     }
@@ -208,14 +306,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
             locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-            // Listar todos os providers disponíveis
-            StringBuilder providersInfo = new StringBuilder("Providers disponíveis:\n");
-            for (String provider : locationManager.getAllProviders()) {
-                boolean enabled = locationManager.isProviderEnabled(provider);
-                providersInfo.append(provider).append(": ").append(enabled ? "Ativo" : "Inativo").append("\n");
-            }
-            Log.d("MainActivity", providersInfo.toString());
 
             // Tentar obter localização do GPS
             Location location = null;
@@ -269,7 +359,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "✅ Permissão de localização concedida!", Toast.LENGTH_SHORT).show();
+                Log.d("MainActivity", "✅ Permissão de localização concedida!");
                 // Recarregar localização
                 mostrarLocalizacaoAtual();
 
@@ -278,9 +368,7 @@ public class MainActivity extends AppCompatActivity {
                     localizacaoService.iniciarMonitoramento();
                 }
             } else {
-                Toast.makeText(this,
-                        "❌ Permissão de localização negada.\nO app não funcionará corretamente.",
-                        Toast.LENGTH_LONG).show();
+                Log.w("MainActivity", "❌ Permissão de localização negada");
             }
         }
     }
@@ -299,15 +387,34 @@ public class MainActivity extends AppCompatActivity {
         if (localizacaoService != null) {
             localizacaoService.pararMonitoramento();
         }
+
+        // Fechar conexão com o banco de configurações
+        if (configRepository != null) {
+            configRepository.close();
+        }
     }
 
-    private void startCriarConta(){
+    private void startCriarConta() {
         Intent navegar = new Intent(this, CriarConta.class);
         startActivity(navegar);
     }
 
-    private void startHome(){
+    private void startHome() {
         Intent intent = new Intent(MainActivity.this, FormHome.class);
         startActivity(intent);
+        finish(); // Fechar MainActivity para não voltar com back button
+    }
+
+    private void iniciarUtilizador(Session session) {
+        if (session != null && session.getUser() != null) {
+            userRepo.getIntance();
+            userRepo.getIntance().set_id(session.getUser().get_id());
+            userRepo.getIntance().setUsername(session.getUser().getUsername());
+            for (Perfil perfil : session.getUser().getPerfil()) {
+                userRepo.getIntance().addPerfil(perfil);
+            }
+            userRepo.getIntance().setPassword(session.getUser().getPassword());
+            Log.d("MainActivity", "Usuário inicializado: " + session.getUser().getUsername());
+        }
     }
 }
